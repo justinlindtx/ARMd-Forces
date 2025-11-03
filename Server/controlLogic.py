@@ -1,5 +1,5 @@
 # This file contains the logic for translating one coordinate position to another
-# IMPORTANT: Z VALUES ARE NOT CHANGED YET. They are using a polar coordinate system, so this will have to be accounted for
+# IMPORTANT: Z values are using a polar coordinate system, so this will have to be accounted for
 #
 # x = horizontal distance from base
 # y = height
@@ -10,8 +10,7 @@ import time
 import math
 
 # GPIO setup
-arm_pins = [11, 13] # shoulder, elbow (order is important)
-base_pin = 15
+arm_pins = [11, 13, 15] # shoulder, elbow, base (order is important)
 GPIO.setmode(GPIO.BOARD)
 
 # Placeholders for arm segment lengths
@@ -70,7 +69,7 @@ def main():
 	if not valid_coords(x_start, y_start, z_start):
 		print("INVALID INPUT")
 		return
-	start_angles = find_angles(x_start, y_start)
+	start_angles = find_angles(x_start, y_start) + (z_start * (math.pi/180),)
 
 	# Define end position
 	x_end = float(input("Input target x: "))
@@ -79,7 +78,7 @@ def main():
 	if not valid_coords(x_end, y_end, z_end):
 		print("INVALID INPUT")
 		return
-	end_angles = find_angles(x_end, y_end)
+	end_angles = find_angles(x_end, y_end) + (z_end * (math.pi/180),)
 
 	move_servos(servos, start_angles, end_angles)
 
