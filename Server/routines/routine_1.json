@@ -1,0 +1,31 @@
+{
+  "name": "routine_1",
+  "description": "This description will appear when hovering over the routine on the webpage",
+  "date": "2025-11-06",
+  "steps": [
+    {
+      "type": "move",
+      "coords": [0.0, 0.4, 0.2]
+    },
+    {
+      "type": "pause",
+      "duration": 1.5
+    },
+    {
+      "type": "grip",
+      "state": "close"
+    },
+    {
+      "type": "move",
+      "coords": [0.0, 0.4, 0.5]
+    },
+    {
+      "type": "pause",
+      "duration": 0.5
+    },
+    {
+      "type": "grip",
+      "state": "open"
+    }
+  ]
+}
