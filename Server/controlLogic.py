@@ -66,6 +66,15 @@ def valid_coords(x,y,z):
 		return False
 	return True
 
+def move_to_coords(servos, start, end):
+	if not valid_coords(*start) or not valid_coords(*end):
+		print("Invalid move")
+		return
+	start_angles = find_angles(*start)
+	end_angles = find_angles(*end)
+	move_servos(servos, start_angles, end_angles)
+	
+
 def main():
 	arm_pins = [11, 13, 15] # shoulder, elbow, base (order is important)
 	servos = servo_setup(arm_pins)
@@ -74,22 +83,14 @@ def main():
 	x_start = float(input("Input starting x: "))
 	y_start = float(input("Input starting y: "))
 	z_start = float(input("Input starting z: "))
-	if not valid_coords(x_start, y_start, z_start):
-		print("INVALID INPUT")
-		return
-	start_angles = find_angles(x_start, y_start, z_start)
 
 	# Define end position
 	x_end = float(input("Input target x: "))
 	y_end = float(input("Input target y: "))
 	z_end = float(input("Input target z: "))
-	if not valid_coords(x_end, y_end, z_end):
-		print("INVALID INPUT")
-		return
-	end_angles = find_angles(x_end, y_end, z_end)
 
-	move_servos(servos, start_angles, end_angles)
-	
+	move_to_coords(servos, (x_start, y_start, z_start), (x_end, y_end, z_end))
+
 	servo_cleanup(servos)
 
 if __name__ == "__main__":

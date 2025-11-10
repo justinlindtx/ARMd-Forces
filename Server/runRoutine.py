@@ -1,20 +1,20 @@
 import json
 import time
 import math
-from controlLogic import servo_setup, find_angles, move_servos, servo_cleanup, MAX_BASE_ANGLE
+from controlLogic import servo_setup, move_to_coords, servo_cleanup, L1, L2, MAX_BASE_ANGLE
 
-initial_angles = [math.pi/4, math.pi/2, (MAX_BASE_ANGLE * math.pi/180) / 2] # 45 (shoulder), 90 (elbow), centered (base)
+initial_coords = [L2, L1, MAX_BASE_ANGLE / 2]
 
 def execute_routine(routine, servos):
 	print(f"Executing routine {routine["name"]}")
-	current_angles = initial_angles
+	current_coords = initial_coords
 
 	for step in routine["steps"]:
 		type = step["type"]
 		if type == "move":
-			next_angles = find_angles(step["coords"])
-			move_servos(servos, current_angles, next_angles)
-			current_angles = next_angles
+			next_coords = step["coords"]
+			move_to_coords(servos, current_coords, next_coords)
+			current_coords = next_coords
 
 		elif type == "pause":
 			time.sleep(step["duration"])
