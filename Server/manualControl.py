@@ -28,7 +28,7 @@ def arm_motion_loop(servos):
 			current_coords[0] += dx
 			current_coords[1] += dy
 			current_coords[2] += dz
-			move_to_coords(servos, last_coords, current_coords)
+			move_to_coords(servos, last_coords, current_coords, 1)
 
 		time.sleep(time_interval)
 

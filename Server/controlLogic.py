@@ -32,7 +32,7 @@ def servo_cleanup(servos):
 		s.stop()
 	GPIO.cleanup()
 
-def move_servos(servos, start_angles, end_angles, steps=50, delay=0.02):
+def move_servos(servos, start_angles, end_angles, steps, delay=0.02):
 	for step in range(steps + 1): # each servo reaches its end angle in the same # steps
 		ratio = step / steps
 		for i, servo in enumerate(servos): # move each servo
@@ -40,8 +40,6 @@ def move_servos(servos, start_angles, end_angles, steps=50, delay=0.02):
 			duty = dutycycle(angle)
 			servo.ChangeDutyCycle(duty)
 		time.sleep(delay)
-	# Hold briefly at final positions
-	time.sleep(0.2)
 
 def dutycycle(angle):
 	return MIN_DUTY + (angle / math.pi) * (MAX_DUTY - MIN_DUTY)
@@ -66,13 +64,13 @@ def valid_coords(x,y,z):
 		return False
 	return True
 
-def move_to_coords(servos, start, end):
+def move_to_coords(servos, start, end, steps):
 	if not valid_coords(*start) or not valid_coords(*end):
 		print("Invalid move")
 		return
 	start_angles = find_angles(*start)
 	end_angles = find_angles(*end)
-	move_servos(servos, start_angles, end_angles)
+	move_servos(servos, start_angles, end_angles, steps)
 	
 
 def main():

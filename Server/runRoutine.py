@@ -13,7 +13,7 @@ def execute_routine(routine, servos):
 		type = step["type"]
 		if type == "move":
 			next_coords = step["coords"]
-			move_to_coords(servos, current_coords, next_coords)
+			move_to_coords(servos, current_coords, next_coords, 50)
 			current_coords = next_coords
 
 		elif type == "pause":
