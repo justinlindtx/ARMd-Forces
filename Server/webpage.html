@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>My Page Title</title>
+		<link rel="icon" type="image/x-icon" href="/favicon.ico">
+	</head>
+	<body onload="main()">
+		<form action="/send" method="post">
+			
+			<select name="Mode" id="select">
+			  <option value="coords">Coords</option>
+			  <option value="controller">Controller</option>
+			</select>
+			<div id="coords" class="mode">
+				<p>input coords:</p>
+				<input type="number" id="x" name="x">
+				<input type="number" id="y" name="y">
+				<input type="number" id="deg" name="deg">
+			</div>
+			<div id="controller" class="mode">
+				<p>Listening to input:</p>
+			</div>
+			<input type="submit"name="sub" value = "sub">
+			
+		</form>
+		<script src="script.js"></script>
+		<noscript>Please enable Javascript to view this page!</noscript>
+	</body>
+</html>
