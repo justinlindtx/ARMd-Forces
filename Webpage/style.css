@@ -1,0 +1,24 @@
+button {
+	background-color: lightblue;
+	width: 80px;
+	height: 40px;
+}
+
+button:hover {
+	background-color: blue;
+}
+
+button:active {
+	transform: scale(0.95)
+}
+
+.controls {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.row {
+	display: flex;
+	gap: 10px;
+}

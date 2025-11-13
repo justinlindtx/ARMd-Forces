@@ -71,7 +71,7 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
 					print(form["x"].value)
 		self.do_GET()
 		
-def main():s
+def main():
 
 	try:
 		server = http.server.HTTPServer((HOST_NAME, PORT_NUMBER), MyHandler)
