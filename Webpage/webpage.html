@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>My Page Title</title>
+		<title>ARM Control Page</title>
 		<link rel="icon" type="image/x-icon" href="/favicon.ico">
 	</head>
 	<body onload="main()">
@@ -10,6 +10,7 @@
 			<select name="Mode" id="select">
 			  <option value="coords">Coords</option>
 			  <option value="controller">Controller</option>
+			  <option value="manual">Manual Control</option>
 			</select>
 			<div id="coords" class="mode">
 				<p>input coords:</p>
@@ -19,6 +20,39 @@
 			</div>
 			<div id="controller" class="mode">
 				<p>Listening to input:</p>
+			</div>
+			<div id="manual" class="mode">
+				<p>Control arm using the buttons</p>
+				<div>
+					<button onmousedown="fetch('/move?dir=y+&state=on')"
+							onmouseup="fetch('/move?dir=y+&state=off')">
+							Up
+					</button>
+				</div>
+				<div>
+					<button onmousedown="fetch('/move?dir=x+&state=on')"
+							onmouseup="fetch('/move?dir=x+&state=off')">
+							Forward
+					</button>
+					<button onmousedown="fetch('/move?dir=y-&state=on')"
+							onmouseup="fetch('/move?dir=y-&state=off')">
+							Down
+					</button>
+					<button onmousedown="fetch('/move?dir=x-&state=on')"
+							onmouseup="fetch('/move?dir=x-&state=off')">
+							Back
+					</button>
+				</div>
+				<div>
+					<button onmousedown="fetch('/move?dir=z-&state=on')"
+							onmouseup="fetch('/move?dir=z-&state=off')">
+							Rotate Left
+					</button>
+					<button onmousedown="fetch('/move?dir=z+&state=on')"
+							onmouseup="fetch('/move?dir=z+&state=off')">
+							Rotate Right
+					</button>
+				</div>
 			</div>
 			<input type="submit"name="sub" value = "sub">
 			

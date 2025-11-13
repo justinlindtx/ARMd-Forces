@@ -2,6 +2,8 @@ import time
 import http.server, cgi
 #import RPi.GPIO as GPIO
 from os import curdir, sep
+from urllib.parse import urlparse, parse_qs
+from manualControl import active_dir
 
 HOST_NAME = ''
 PORT_NUMBER = 8000
@@ -11,6 +13,20 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
 	def do_GET(self):
 		if self.path in ("/", "/send?", "/send"):
 			self.path = "/webpage.html"
+		
+		# Handle movement controls
+		if self.path.startswith("/move"):
+			parsed = urlparse(self.path)
+			params = parse_qs(parsed.query)
+			dir = params.get("dir", [""])[0]
+			state = params.get("state", [""])[0]
+			active_dir[dir] = (state == "on") # This will cause the servos to move
+
+			self.send_response(200)
+			self.send_header("Content-type", "text/plain")
+			self.end_headers()
+			self.wfile.write(b"OK")
+			return
 
 		try:
 			sendReply = False
@@ -55,7 +71,7 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
 					print(form["x"].value)
 		self.do_GET()
 		
-def main():
+def main():s
 
 	try:
 		server = http.server.HTTPServer((HOST_NAME, PORT_NUMBER), MyHandler)
