@@ -1,7 +1,8 @@
 import time
-import http.server, cgi
+import http.server #, cgi
 #import RPi.GPIO as GPIO
-from os import curdir, sep
+import os
+import sys
 from urllib.parse import urlparse, parse_qs
 from manualControl import active_dir
 
@@ -12,7 +13,7 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
 	# handler for GET requests
 	def do_GET(self):
 		if self.path in ("/", "/send?", "/send"):
-			self.path = "/webpage.html"
+			self.path = "/Webpage/webpage.html"
 		
 		# Handle movement controls
 		if self.path.startswith("/move"):
@@ -43,7 +44,7 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
 			#full_path = os.path.join(os.curdir, self.path.lstrip("/"))
 			
 			if sendReply:
-				f = open(curdir + sep + self.path, 'rb')
+				f = open(os.curdir + os.sep + self.path, 'rb')
 				self.send_response(200)
 				self.send_header("Content-type", mimetype)
 				self.end_headers()
@@ -60,18 +61,16 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
 	def do_POST(self):
 		if self.path == "/send":
 			self.path = "/"
-			form = cgi.FieldStorage(
-				fp = self.rfile,
-				headers = self.headers,
-				environ = {"REQUEST_METHOD":"POST",
-					"CONTENT_TYPE":self.headers["Content-Type"],
-			})
-			if (form["sub"].value == "sub"):
+			content_length = int(os.environ.get("CONTENT_LENGTH", 0))
+			body = sys.stdin.read(content_length)
+			form = parse_qs(body)
+			sub = form.get("sub", [""])[0]
+			if (sub == "sub"):
 				if ("x" in form):
 					print(form["x"].value)
 		self.do_GET()
 		
-def main():s
+def main():
 
 	try:
 		server = http.server.HTTPServer((HOST_NAME, PORT_NUMBER), MyHandler)

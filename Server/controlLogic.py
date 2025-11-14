@@ -5,7 +5,7 @@
 # y = height
 # z = rotation about base
 
-import RPi.GPIO as GPIO
+# import RPi.GPIO as GPIO
 import time
 import math
 
@@ -33,10 +33,11 @@ def servo_cleanup(servos):
 	GPIO.cleanup()
 
 def move_servos(servos, start_angles, end_angles, steps, delay=0.02):
-	for step in range(steps + 1): # each servo reaches its end angle in the same # steps
-		ratio = step / steps
+	for step in range(steps): # each servo reaches its end angle in the same # steps
+		ratio = (step+1) / steps
 		for i, servo in enumerate(servos): # move each servo
 			angle = start_angles[i] + (end_angles[i] - start_angles[i]) * ratio
+			print(f"Servo {i} angle: {angle}") # Debug print
 			duty = dutycycle(angle)
 			servo.ChangeDutyCycle(duty)
 		time.sleep(delay)
