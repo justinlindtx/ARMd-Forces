@@ -40,6 +40,9 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
 			elif self.path.endswith(".ico"):
 				mimetype = "image/icon"
 				sendReply = True
+			elif self.path.endswith(".css"):
+				mimetype = "text/css"
+				sendReply = True
 				
 			#full_path = os.path.join(os.curdir, self.path.lstrip("/"))
 			
