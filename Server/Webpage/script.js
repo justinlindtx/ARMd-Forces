@@ -10,12 +10,11 @@ function main() {
 
 	var snapshotBtn = document.getElementById("snapshot-btn");
 	var pauseBtn = document.getElementById("pause-btn");
-	var gripBtn = document.getElementById("grip-btn");
 	var undoBtn = document.getElementById("undo-btn");
 	snapshotBtn.addEventListener("click", takeSnapshot);
 	pauseBtn.addEventListener("click", addPause);
-	gripBtn.addEventListener("click", changeGrip);
 	undoBtn.addEventListener("click", undoAction);
+	console.log("LOADED");
 }
 
 function modeChange() {
@@ -40,9 +39,10 @@ function modeChange() {
 }
 
 function undoAction() {
+	console.log("BUTTONPRESS");
 	var list = document.getElementById("list");
-	if(list.lastChild){
-		list.removeChild(list.lastChild);
+	if(list.lastElementChild){
+		list.removeChild(list.lastElementChild);
 	}
 }
 
@@ -52,8 +52,4 @@ function addPause() {
 
 function takeSnapshot() {
 
-}
-
-function changeGrip() {
-	
 }

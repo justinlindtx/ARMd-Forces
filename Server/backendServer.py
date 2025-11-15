@@ -13,7 +13,7 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
 	# handler for GET requests
 	def do_GET(self):
 		if self.path in ("/", "/send?", "/send"):
-			self.path = "/Webpage/webpage.html"
+			self.path = "Server/Webpage/webpage.html"
 		
 		# Handle movement controls
 		if self.path.startswith("/move"):
@@ -38,24 +38,28 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
 				mimetype = "application/javascript"
 				sendReply = True
 			elif self.path.endswith(".ico"):
-				mimetype = "image/icon"
+				mimetype = "image/x-icon"
 				sendReply = True
 			elif self.path.endswith(".css"):
 				mimetype = "text/css"
 				sendReply = True
-				
-			#full_path = os.path.join(os.curdir, self.path.lstrip("/"))
+			else:
+				self.send_error(404, "Unknown file type")
+				return
 			
 			if sendReply:
-				f = open(os.curdir + os.sep + self.path, 'rb')
-				self.send_response(200)
-				self.send_header("Content-type", mimetype)
-				self.end_headers()
-				self.wfile.write(f.read())
-				# This is where we need to create custom HTML and send it
-				# note the use of single quotes so we can transmit double quotes
-				f.close()
-			return
+				full_path = os.path.join(os.curdir, self.path.lstrip("/"))
+				with open(full_path, 'rb') as f:
+					self.send_response(200)
+					self.send_header("Content-type", mimetype)
+					self.end_headers()
+					try:
+						self.wfile.write(f.read())
+					except ConnectionAbortedError:
+						pass
+					# This is where we need to create custom HTML and send it
+					# note the use of single quotes so we can transmit double quotes
+				return
 
 		except IOError:
 			self.send_error(404, "File not found: %s" % self.path)
@@ -63,15 +67,16 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
 	# handler for POST requests
 	def do_POST(self):
 		if self.path == "/send":
-			self.path = "/"
 			content_length = int(os.environ.get("CONTENT_LENGTH", 0))
-			body = sys.stdin.read(content_length)
+			body = self.rfile.read(content_length).decode()
 			form = parse_qs(body)
 			sub = form.get("sub", [""])[0]
 			if (sub == "sub"):
 				if ("x" in form):
 					print(form["x"].value)
-		self.do_GET()
+		self.send_response(303) # redirect
+		self.send_header("Location", "/")
+		self.end_headers()
 		
 def main():
 
