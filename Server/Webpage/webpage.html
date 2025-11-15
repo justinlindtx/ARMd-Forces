@@ -6,8 +6,7 @@
 		<link rel="stylesheet" href="/Server/Webpage/style.css">
 	</head>
 	<body onload="main()">
-		<form action="/send" method="post">
-			
+
 			<select name="Mode" id="select">
 			  <option value="coords">Coords</option>
 			  <option value="controller">Controller</option>
@@ -43,43 +42,46 @@
 							<button type="button" id="snapshot-btn">Take snapshot</button>
 							<button type="button" id="pause-btn">Add pause</button>
 							<button type="button" id="undo-btn">Undo</button>
-							<button type="submit" id="save-btn">SAVE</button>
+							<form action="/save" method="post">
+								<input type="hidden" name="routine_json" id="routine-json">
+								<button type="submit" id="save-btn">SAVE</button>
+							</form>
 						</div>
 					</div>
 				</div>
 			</div>
 			<div id="control-panel" class="controls">
 				<div class="ctrl-row">
-					<button class="ctrl-btn"
+					<button class="ctrl-btn" type="button"
 							onmousedown="fetch('/move?dir=y+&state=on')"
 							onmouseup="fetch('/move?dir=y+&state=off')">
 							Up
 					</button>
 				</div>
 				<div class="ctrl-row">
-					<button class="ctrl-btn"
+					<button class="ctrl-btn" type="button"
 							onmousedown="fetch('/move?dir=x+&state=on')"
 							onmouseup="fetch('/move?dir=x+&state=off')">
 							Forward
 					</button>
-					<button class="ctrl-btn"
+					<button class="ctrl-btn" type="button"
 							onmousedown="fetch('/move?dir=y-&state=on')"
 							onmouseup="fetch('/move?dir=y-&state=off')">
 							Down
 					</button>
-					<button class="ctrl-btn"
+					<button class="ctrl-btn" type="button"
 							onmousedown="fetch('/move?dir=x-&state=on')"
 							onmouseup="fetch('/move?dir=x-&state=off')">
 							Back
 					</button>
 				</div>
 				<div class="ctrl-row">
-					<button class="ctrl-btn rotate"
+					<button class="ctrl-btn rotate" type="button"
 							onmousedown="fetch('/move?dir=z-&state=on')"
 							onmouseup="fetch('/move?dir=z-&state=off')">
 							Rotate Left
 					</button>
-					<button class="ctrl-btn rotate"
+					<button class="ctrl-btn rotate" type="button"
 							onmousedown="fetch('/move?dir=z+&state=on')"
 							onmouseup="fetch('/move?dir=z+&state=off')">
 							Rotate Right
@@ -92,9 +94,9 @@
 					</button>
 				</div>
 			</div>
-			<input type="submit"name="sub" value = "sub">
-			
-		</form>
+			<form action="/send" method="post">
+				<input type="submit"name="sub" value = "sub">
+			</form>
 		<script src="/Server/Webpage/script.js"></script>
 		<noscript>Please enable Javascript to view this page!</noscript>
 	</body>
