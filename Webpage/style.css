@@ -1,11 +1,15 @@
 button {
-	background-color: lightblue;
+	background-color: rgb(135, 215, 241);
+	font-size: 12px;
 	width: 80px;
 	height: 40px;
+	border-radius: 4px;
+	vertical-align: middle;
+	cursor: pointer;
 }
 
 button:hover {
-	background-color: blue;
+	background-color: rgb(41, 170, 250);
 }
 
 button:active {
@@ -13,12 +17,58 @@ button:active {
 }
 
 .controls {
-	display: flex;
-	flex-direction: column;
-	gap: 10px;
+	display: inline-block;
+	padding: 10px;
+	margin: 10px;
+	margin-right: 40px;
+	border-radius: 6px;
+	background-color: lightgrey;
 }
 
-.row {
+.ctrl-row {
 	display: flex;
-	gap: 10px;
+	justify-content: center;
+	gap: 8px;
+	margin: 4px 0;
+}
+
+.ctrl-btn {
+	padding: 8px 12px;
+}
+
+.rotate {
+	width: 125px;
+}
+
+.routine-box {
+	width: 370px;
+	height: 200px;
+	padding: 5px;
+	box-sizing: border-box;
+	border: 2px solid navy;
+	border-radius: 6px;
+	overflow-y: auto;
+}
+
+#list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+#list li {
+	padding: 4px 0;
+	border-bottom: 1px solid navy;
+}
+
+.layout {
+	display: flex;
+	align-items: flex-start;
+}
+
+.button-row {
+	display: flex;
+	margin: 10px;
+	gap: 8px;
+	justify-content: center;
 }

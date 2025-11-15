@@ -2,8 +2,8 @@
 <html>
 	<head>
 		<title>ARM Control Page</title>
-		<link rel="icon" type="image/x-icon" href="/favicon.ico">
-		<link rel="stylesheet" href="/style.css">
+		<link rel="icon" type="image/x-icon" href="favicon.ico">
+		<link rel="stylesheet" href="style.css">
 	</head>
 	<body onload="main()">
 		<form action="/send" method="post">
@@ -12,6 +12,7 @@
 			  <option value="coords">Coords</option>
 			  <option value="controller">Controller</option>
 			  <option value="manual">Manual Control</option>
+			  <option value="create">Create Routine</option>
 			</select>
 			<div id="coords" class="mode">
 				<p>input coords:</p>
@@ -24,37 +25,71 @@
 			</div>
 			<div id="manual" class="mode">
 				<p>Control arm using the buttons</p>
-				<div class="controls">
-					<div class="row">
-						<button onmousedown="fetch('/move?dir=y+&state=on')"
-								onmouseup="fetch('/move?dir=y+&state=off')">
-								Up
-						</button>
+				<div id="manual-control-placeholder"></div>
+			</div>
+			<div id="create" class="mode">
+				<p>Create a new routine to run</p>
+				<div class="layout">
+					<div id="control-placeholder"></div>
+					<div>
+						<div class="routine-box">
+							<ul id="list">
+							<li>Line 1: Text</li>
+							<li>Line 2: More text</li>
+							<li>Line 3: More text</li>
+							</ul>
+						</div>
+						<div class = "button-row">
+							<button id="snapshot-btn">Take snapshot</button>
+							<button id="pause-btn">Add pause</button>
+							<button id="undo-btn">Undo</button>
+							<button id="save-btn">SAVE</button>
+						</div>
 					</div>
-					<div class="row">
-						<button onmousedown="fetch('/move?dir=x+&state=on')"
-								onmouseup="fetch('/move?dir=x+&state=off')">
-								Forward
-						</button>
-						<button onmousedown="fetch('/move?dir=y-&state=on')"
-								onmouseup="fetch('/move?dir=y-&state=off')">
-								Down
-						</button>
-						<button onmousedown="fetch('/move?dir=x-&state=on')"
-								onmouseup="fetch('/move?dir=x-&state=off')">
-								Back
-						</button>
-					</div>
-					<div class="row">
-						<button onmousedown="fetch('/move?dir=z-&state=on')"
-								onmouseup="fetch('/move?dir=z-&state=off')">
-								Rotate Left
-						</button>
-						<button onmousedown="fetch('/move?dir=z+&state=on')"
-								onmouseup="fetch('/move?dir=z+&state=off')">
-								Rotate Right
-						</button>
-					</div>
+				</div>
+			</div>
+			<div id="control-panel" class="controls">
+				<div class="ctrl-row">
+					<button class="ctrl-btn"
+							onmousedown="fetch('/move?dir=y+&state=on')"
+							onmouseup="fetch('/move?dir=y+&state=off')">
+							Up
+					</button>
+				</div>
+				<div class="ctrl-row">
+					<button class="ctrl-btn"
+							onmousedown="fetch('/move?dir=x+&state=on')"
+							onmouseup="fetch('/move?dir=x+&state=off')">
+							Forward
+					</button>
+					<button class="ctrl-btn"
+							onmousedown="fetch('/move?dir=y-&state=on')"
+							onmouseup="fetch('/move?dir=y-&state=off')">
+							Down
+					</button>
+					<button class="ctrl-btn"
+							onmousedown="fetch('/move?dir=x-&state=on')"
+							onmouseup="fetch('/move?dir=x-&state=off')">
+							Back
+					</button>
+				</div>
+				<div class="ctrl-row">
+					<button class="ctrl-btn rotate"
+							onmousedown="fetch('/move?dir=z-&state=on')"
+							onmouseup="fetch('/move?dir=z-&state=off')">
+							Rotate Left
+					</button>
+					<button class="ctrl-btn rotate"
+							onmousedown="fetch('/move?dir=z+&state=on')"
+							onmouseup="fetch('/move?dir=z+&state=off')">
+							Rotate Right
+					</button>
+				</div>
+				<div class="ctrl-row">
+					<button class="ctrl-btn" style="margin-top: 20px; width: 200px;"
+							onmousedown="fetch('/grip')">
+							Grip/ungrip
+					</button>
 				</div>
 			</div>
 			<input type="submit"name="sub" value = "sub">
