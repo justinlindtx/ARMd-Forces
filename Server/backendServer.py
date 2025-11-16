@@ -3,8 +3,9 @@ import http.server #, cgi
 #import RPi.GPIO as GPIO
 import os
 import sys
+import json
 from urllib.parse import urlparse, parse_qs
-from manualControl import active_dir
+from manualControl import active_dir, current_coords
 
 HOST_NAME = ''
 PORT_NUMBER = 8000
@@ -27,6 +28,17 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
 			self.send_header("Content-type", "text/plain")
 			self.end_headers()
 			self.wfile.write(b"OK")
+			return
+		
+		# Handle snapshot requests
+		if self.path == "/get-coords":
+			response = json.dumps(current_coords).encode()
+
+			self.send_response(200)
+			self.send_header("Content-type", "application/json")
+			self.send_header("Content-Length", len(response))
+			self.end_headers()
+			self.wfile.write(response) # send json to client
 			return
 
 		try:

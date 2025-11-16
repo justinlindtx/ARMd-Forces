@@ -72,3 +72,19 @@ button:active {
 	gap: 8px;
 	justify-content: center;
 }
+
+#pause-submission-form {
+	margin-left: 20px;
+	margin-top: 15px;
+	display: none;
+}
+
+#submit-pause {
+	width: 60px;
+	height: 30px;
+	background-color: lightgrey;
+}
+
+#submit-pause:hover {
+	background-color: rgb(172, 172, 172);
+}

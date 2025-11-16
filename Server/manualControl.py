@@ -6,7 +6,7 @@ import threading
 import time
 from controlLogic import servo_setup, move_to_coords, servo_cleanup
 
-current_coords = [0.0, 0.0, 0.0]
+current_coords = [0.1, 0.22, 0.333]
 active_dir = {"x+": False, "x-": False, "y+": False, "y-": False, "z+": False, "z-": False} # modified by webpage
 speed = 0.5
 time_interval = 0.05

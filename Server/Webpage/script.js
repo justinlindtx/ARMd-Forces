@@ -10,11 +10,12 @@ function main() {
 
 	var snapshotBtn = document.getElementById("snapshot-btn");
 	var pauseBtn = document.getElementById("pause-btn");
+	var pauseSubmit = document.getElementById("submit-pause");
 	var undoBtn = document.getElementById("undo-btn");
 	snapshotBtn.addEventListener("click", takeSnapshot);
-	pauseBtn.addEventListener("click", addPause);
+	pauseBtn.addEventListener("click", showPauseForm);
+	pauseSubmit.addEventListener("click", addPause);
 	undoBtn.addEventListener("click", undoAction);
-	console.log("LOADED");
 }
 
 function modeChange() {
@@ -39,17 +40,42 @@ function modeChange() {
 }
 
 function undoAction() {
-	console.log("BUTTONPRESS");
 	var list = document.getElementById("list");
 	if(list.lastElementChild){
 		list.removeChild(list.lastElementChild);
 	}
 }
 
-function addPause() {
-
+function showPauseForm() {
+	document.getElementById("pause-submission-form").style.display = "block";
 }
 
-function takeSnapshot() {
+function addPause() {
+	var duration = parseFloat(document.getElementById("pause-duration").value);
+	if(isNaN(duration)){
+		console.log("Invalid input");
+		return;
+	}
+	var list = document.getElementById("list");
+	var newpause = document.createElement("li");
+	newpause.textContent = "Pause: " + duration + " sec";
+	list.appendChild(newpause);
 
+	document.getElementById("pause-submission-form").style.display = "none";
+}
+
+async function takeSnapshot() {
+	try {
+		var response = await fetch("/get-coords"); // get coords from the server
+		var data = await response.json();
+		var formatted = data.map(n => Number(n).toFixed(2)).join(", ");
+
+		var list = document.getElementById("list");
+		var snapshot = document.createElement("li");
+		snapshot.textContent = "Move: " + formatted;
+		list.appendChild(snapshot);
+
+	} catch (err) {
+		console.error(err.message);
+	}
 }
