@@ -1,4 +1,5 @@
 var selectedMode;
+var rawCoordValues = [];
 
 function main() {
 	selectedMode = localStorage.getItem("mode") || "coord";
@@ -12,10 +13,14 @@ function main() {
 	var pauseBtn = document.getElementById("pause-btn");
 	var pauseSubmit = document.getElementById("submit-pause");
 	var undoBtn = document.getElementById("undo-btn");
+	var saveBtn = document.getElementById("save-btn");
+	var sendRoutineBtn = document.getElementById("submit-routine");
 	snapshotBtn.addEventListener("click", takeSnapshot);
 	pauseBtn.addEventListener("click", showPauseForm);
 	pauseSubmit.addEventListener("click", addPause);
 	undoBtn.addEventListener("click", undoAction);
+	saveBtn.addEventListener("click", showSaveForm);
+	sendRoutineBtn.addEventListener("click", sendRoutine);
 }
 
 function modeChange() {
@@ -40,6 +45,7 @@ function modeChange() {
 }
 
 function undoAction() {
+	document.getElementById("pause-submission-form").style.display = "none";
 	var list = document.getElementById("list");
 	if(list.lastElementChild){
 		list.removeChild(list.lastElementChild);
@@ -48,10 +54,14 @@ function undoAction() {
 
 function showPauseForm() {
 	document.getElementById("pause-submission-form").style.display = "block";
+	document.getElementById("routine-submission-form").style.display = "none";
 }
 
 function addPause() {
-	var duration = parseFloat(document.getElementById("pause-duration").value);
+	document.getElementById("pause-submission-form").style.display = "none";
+	var entry = document.getElementById("pause-duration");
+	var duration = parseFloat(entry.value);
+	entry.value = "";
 	if(isNaN(duration)){
 		console.log("Invalid input");
 		return;
@@ -60,22 +70,60 @@ function addPause() {
 	var newpause = document.createElement("li");
 	newpause.textContent = "Pause: " + duration + " sec";
 	list.appendChild(newpause);
-
-	document.getElementById("pause-submission-form").style.display = "none";
 }
 
 async function takeSnapshot() {
+	document.getElementById("pause-submission-form").style.display = "none";
 	try {
 		var response = await fetch("/get-coords"); // get coords from the server
 		var data = await response.json();
-		var formatted = data.map(n => Number(n).toFixed(2)).join(", ");
+		var snapshotID = crypto.randomUUID();
+		rawCoordValues.push({id: snapshotID, raw: data}); // store full values
+		var formatted = data.map(n => Number(n).toFixed(2)).join(", "); // display rounded values
 
 		var list = document.getElementById("list");
 		var snapshot = document.createElement("li");
+		snapshot.dataset.rawid = snapshotID;
 		snapshot.textContent = "Move: " + formatted;
 		list.appendChild(snapshot);
 
 	} catch (err) {
 		console.error(err.message);
 	}
+}
+
+function showSaveForm() {
+	document.getElementById("routine-submission-form").style.display = "block";
+	document.getElementById("pause-submission-form").style.display = "none";
+}
+
+async function sendRoutine() {
+	document.getElementById("routine-submission-form").style.display = "none";
+	var name = document.getElementById("routine-name");
+	var routineName = name.value;
+	name.value = "";
+	var routineItems = document.querySelectorAll("#list li");
+	var payload = [];
+	payload.push({name: routineName});
+	routineItems.forEach(li => {
+		var text = li.textContent;
+		if(text.startsWith("Move: ")){
+			var id = li.dataset.rawid;
+			var entry = rawCoordValues.find(x => x.id == id);
+			payload.push({type: "move", coords: entry.raw}); // send unrounded values
+		}
+		else {
+			payload.push({type: "pause", duration: parseFloat(text.slice(7, -4))});
+		}
+	});
+	
+	await fetch("/submit-routine", {
+		method: "post",
+		headers: {"Content-Type": "application/json"},
+		body: JSON.stringify(payload)
+	});
+
+	// Clear the list
+	var list = document.getElementById("list");
+	list.replaceChildren();
 }

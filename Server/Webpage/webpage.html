@@ -18,6 +18,9 @@
 				<input type="number" id="x" name="x">
 				<input type="number" id="y" name="y">
 				<input type="number" id="deg" name="deg">
+				<form action="/send" method="post">
+					<input type="submit"name="sub" value = "sub">
+				</form>
 			</div>
 			<div id="controller" class="mode">
 				<p>Listening to input:</p>
@@ -39,15 +42,17 @@
 							<button type="button" id="snapshot-btn">Take snapshot</button>
 							<button type="button" id="pause-btn">Add pause</button>
 							<button type="button" id="undo-btn">Undo</button>
-							<form action="/save" method="post">
-								<input type="hidden" name="routine_json" id="routine-json">
-								<button type="submit" id="save-btn">SAVE</button>
-							</form>
+							<button type="button" id="save-btn">SAVE</button>
 						</div>
-						<div id="pause-submission-form">
+						<div id="pause-submission-form" class="submission">
 							<label for="pause-duration">Duration (sec):</label>
 							<input type="text" id="pause-duration" name="pause-duration">
-							<button id="submit-pause">Submit</button>
+							<button id="submit-pause" class="submission-btn">Submit</button>
+						</div>
+						<div id="routine-submission-form" class="submission">
+							<label for="routine-name">Routine name:</label>
+							<input type="text" id="routine-name" name="routine-name" >
+							<button id="submit-routine" class="submission-btn">Submit</button>
 						</div>
 					</div>
 				</div>
@@ -96,9 +101,6 @@
 					</button>
 				</div>
 			</div>
-			<form action="/send" method="post">
-				<input type="submit"name="sub" value = "sub">
-			</form>
 		<script src="/Server/Webpage/script.js"></script>
 		<noscript>Please enable Javascript to view this page!</noscript>
 	</body>

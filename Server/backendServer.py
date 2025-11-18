@@ -1,3 +1,4 @@
+import datetime
 import time
 import http.server #, cgi
 #import RPi.GPIO as GPIO
@@ -79,17 +80,42 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
 	# handler for POST requests
 	def do_POST(self):
 		if self.path == "/send":
-			content_length = int(os.environ.get("CONTENT_LENGTH", 0))
+			content_length = int(self.headers.get("Content-Length", 0))
 			body = self.rfile.read(content_length).decode()
 			form = parse_qs(body)
 			sub = form.get("sub", [""])[0]
 			if (sub == "sub"):
 				if ("x" in form):
-					print(form["x"].value)
-		self.send_response(303) # redirect
-		self.send_header("Location", "/")
-		self.end_headers()
-		
+					print(form["x"][0])
+			self.send_response(303) # redirect
+			self.send_header("Location", "/")
+			self.end_headers()
+			return
+
+		# Save a routine
+		if self.path == "/submit-routine":
+			content_length = int(self.headers["Content-Length"])
+			body = self.rfile.read(content_length)
+			data = json.loads(body)
+			routine = {
+				"name": data[0]["name"],
+				"date": datetime.date.today().isoformat(),
+				"steps": data[1:]
+			}
+
+			filename = f"{data[0]['name']}.json"
+			base_directory = os.path.dirname(os.path.abspath(__file__))
+			directory = os.path.join(base_directory, "routines")
+			filepath = os.path.join(directory, filename)
+
+			with open(filepath, 'w') as f:
+				json.dump(routine, f, indent=2)
+			
+			self.send_response(303) # redirect
+			self.send_header("Location", "/")
+			self.end_headers()
+			return
+
 def main():
 
 	try:
