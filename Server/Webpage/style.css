@@ -1,3 +1,7 @@
+body {
+	background-color: dimgrey;
+}
+
 button {
 	background-color: rgb(135, 215, 241);
 	font-size: 12px;
@@ -22,7 +26,7 @@ button:active {
 	margin: 10px;
 	margin-right: 40px;
 	border-radius: 6px;
-	background-color: lightgrey;
+	background-color: rgb(137, 137, 137);
 }
 
 .ctrl-row {
@@ -48,6 +52,7 @@ button:active {
 	border: 2px solid navy;
 	border-radius: 6px;
 	overflow-y: auto;
+	background-color: gainsboro;
 }
 
 #list {

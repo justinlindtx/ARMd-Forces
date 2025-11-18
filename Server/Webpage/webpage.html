@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>ARM Control Page</title>
+		<title>ARM Control Panel</title>
 		<link rel="icon" type="image/x-icon" href="/Server/Webpage/favicon.ico">
 		<link rel="stylesheet" href="/Server/Webpage/style.css">
 	</head>
 	<body onload="main()">
-
+		<h1>ARM'd Forces Web Control Panel</h1>
 			<select name="Mode" id="select">
 			  <option value="coords">Coords</option>
 			  <option value="controller">Controller</option>
@@ -14,10 +14,10 @@
 			  <option value="create">Create Routine</option>
 			</select>
 			<div id="coords" class="mode">
-				<p>input coords:</p>
-				<input type="number" id="x" name="x">
-				<input type="number" id="y" name="y">
-				<input type="number" id="deg" name="deg">
+				<p>Input coords:</p>
+				<label>X:</label><input type="number" id="x" name="x"><br>
+				<label>Y:</label><input type="number" id="y" name="y"><br>
+				<label>Z (angle):</label><input type="number" id="deg" name="deg"><br>
 				<form action="/send" method="post">
 					<input type="submit"name="sub" value = "sub">
 				</form>
