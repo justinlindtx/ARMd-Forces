@@ -15,12 +15,14 @@ function main() {
 	var undoBtn = document.getElementById("undo-btn");
 	var saveBtn = document.getElementById("save-btn");
 	var sendRoutineBtn = document.getElementById("submit-routine");
+	var runRoutineBtn = document.getElementById("run");
 	snapshotBtn.addEventListener("click", takeSnapshot);
 	pauseBtn.addEventListener("click", showPauseForm);
 	pauseSubmit.addEventListener("click", addPause);
 	undoBtn.addEventListener("click", undoAction);
 	saveBtn.addEventListener("click", showSaveForm);
 	sendRoutineBtn.addEventListener("click", sendRoutine);
+	runRoutineBtn.addEventListener("click", runRoutine);
 }
 
 function modeChange() {
@@ -32,6 +34,10 @@ function modeChange() {
 		modes[i].style.display = "none";
 	}
 	selMode.style.display = "block"; // show selected mode
+
+	if(selectedMode == "run-routine"){
+		loadRoutines();
+	}
 
 	var controlPanel = document.getElementById("control-panel");
 	if(selectedMode == "manual"){
@@ -126,4 +132,34 @@ async function sendRoutine() {
 	// Clear the list
 	var list = document.getElementById("list");
 	list.replaceChildren();
+}
+
+async function loadRoutines() {
+	var response = await fetch("/list-files");
+	var files = await response.json();
+	var select = document.getElementById("routineSelect");
+	select.innerHTML = ""; // clear old options
+
+	var blank = document.createElement("option");
+	blank.value = "";
+	blank.textContent = "";
+	select.append(blank);
+
+	for(var file of files){
+		var option = document.createElement("option");
+		option.value = file;
+		option.textContent = file;
+		select.append(option);
+	}
+}
+
+async function runRoutine() {
+	var selectedRoutine = document.getElementById("routineSelect");
+	if(selectedRoutine.value == "") return;
+
+	await fetch("/run-routine", {
+		method: "post",
+		headers: {"Content-Type": "application/json"},
+		body: JSON.stringify(selectedRoutine.value)
+	});
 }

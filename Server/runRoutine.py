@@ -21,9 +21,11 @@ def execute_routine(routine, servos):
 
 		elif type == "grip":
 			if step["state"] == "close":
-				close_gripper() # function not written yet
+				#close_gripper() # function not written yet
+				pass
 			elif step["state"] == "open":
-				open_gripper() # function not written yet
+				#open_gripper() # function not written yet
+				pass
 		
 		else:
 			print(f"Unknown step type {type}")

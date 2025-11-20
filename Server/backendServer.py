@@ -7,9 +7,13 @@ import sys
 import json
 from urllib.parse import urlparse, parse_qs
 from manualControl import active_dir, current_coords
+from runRoutine import execute_routine
+from controlLogic import servo_setup, servo_cleanup
 
 HOST_NAME = ''
 PORT_NUMBER = 8000
+arm_pins = [11, 13, 15] # shoulder, elbow, base (order is important)
+#servos = servo_setup(arm_pins)
 
 class MyHandler(http.server.BaseHTTPRequestHandler):
 	# handler for GET requests
@@ -40,6 +44,18 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
 			self.send_header("Content-Length", len(response))
 			self.end_headers()
 			self.wfile.write(response) # send json to client
+			return
+		
+		# List previously saved routines
+		if self.path == "/list-files":
+			files = os.listdir("Server/routines")
+			response = json.dumps(files).encode()
+
+			self.send_response(200)
+			self.send_header("Content-type", "application/json")
+			self.send_header("Content-Length", len(response))
+			self.end_headers()
+			self.wfile.write(response)
 			return
 
 		try:
@@ -92,6 +108,20 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
 			self.end_headers()
 			return
 
+		if self.path == "/run-routine":
+			content_length = int(self.headers["Content-Length"])
+			body = self.rfile.read(content_length)
+			filename = json.loads(body)
+			path = os.path.join("Server/routines", filename)
+			with open(path, "r") as file:
+				routine = json.load(file)
+			#execute_routine(routine, servos)
+			
+			self.send_response(303) # redirect
+			self.send_header("Location", "/")
+			self.end_headers()
+			return
+
 		# Save a routine
 		if self.path == "/submit-routine":
 			content_length = int(self.headers["Content-Length"])
@@ -117,7 +147,6 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
 			return
 
 def main():
-
 	try:
 		server = http.server.HTTPServer((HOST_NAME, PORT_NUMBER), MyHandler)
 		print ("Started httpserver on port ", str(PORT_NUMBER))
@@ -128,7 +157,7 @@ def main():
 		print("^C received, shutting down web server")
 	finally:
 		server.socket.close()
-		GPIO.cleanup()
+		#servo_cleanup(servos)
 
 if __name__ == "__main__":
 	main()

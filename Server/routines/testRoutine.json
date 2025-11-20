@@ -1,0 +1,34 @@
+{
+  "name": "testRoutine",
+  "date": "2025-11-20",
+  "steps": [
+    {
+      "type": "move",
+      "coords": [
+        0.1,
+        0.22,
+        0.333
+      ]
+    },
+    {
+      "type": "move",
+      "coords": [
+        0.1,
+        0.22,
+        0.333
+      ]
+    },
+    {
+      "type": "move",
+      "coords": [
+        0.1,
+        0.22,
+        0.333
+      ]
+    },
+    {
+      "type": "pause",
+      "duration": 3
+    }
+  ]
+}
