@@ -63,48 +63,50 @@
 					</div>
 				</div>
 			</div>
-			<div id="control-panel" class="controls">
-				<div class="ctrl-row">
-					<button class="ctrl-btn" type="button"
-							onmousedown="fetch('/move?dir=y+&state=on')"
-							onmouseup="fetch('/move?dir=y+&state=off')">
-							Up
-					</button>
-				</div>
-				<div class="ctrl-row">
-					<button class="ctrl-btn" type="button"
-							onmousedown="fetch('/move?dir=x+&state=on')"
-							onmouseup="fetch('/move?dir=x+&state=off')">
-							Forward
-					</button>
-					<button class="ctrl-btn" type="button"
-							onmousedown="fetch('/move?dir=y-&state=on')"
-							onmouseup="fetch('/move?dir=y-&state=off')">
-							Down
-					</button>
-					<button class="ctrl-btn" type="button"
-							onmousedown="fetch('/move?dir=x-&state=on')"
-							onmouseup="fetch('/move?dir=x-&state=off')">
-							Back
-					</button>
-				</div>
-				<div class="ctrl-row">
-					<button class="ctrl-btn rotate" type="button"
-							onmousedown="fetch('/move?dir=z-&state=on')"
-							onmouseup="fetch('/move?dir=z-&state=off')">
-							Rotate Left
-					</button>
-					<button class="ctrl-btn rotate" type="button"
-							onmousedown="fetch('/move?dir=z+&state=on')"
-							onmouseup="fetch('/move?dir=z+&state=off')">
-							Rotate Right
-					</button>
-				</div>
-				<div class="ctrl-row">
-					<button class="ctrl-btn" style="margin-top: 20px; width: 200px;"
-							onmousedown="fetch('/grip')">
-							Grip/ungrip
-					</button>
+			<div id="control-panel-box" hidden>
+				<div id="control-panel" class="controls">
+					<div class="ctrl-row">
+						<button class="ctrl-btn" type="button"
+								onmousedown="fetch('/move?dir=y+&state=on')"
+								onmouseup="fetch('/move?dir=y+&state=off')">
+								Up
+						</button>
+					</div>
+					<div class="ctrl-row">
+						<button class="ctrl-btn" type="button"
+								onmousedown="fetch('/move?dir=x+&state=on')"
+								onmouseup="fetch('/move?dir=x+&state=off')">
+								Forward
+						</button>
+						<button class="ctrl-btn" type="button"
+								onmousedown="fetch('/move?dir=y-&state=on')"
+								onmouseup="fetch('/move?dir=y-&state=off')">
+								Down
+						</button>
+						<button class="ctrl-btn" type="button"
+								onmousedown="fetch('/move?dir=x-&state=on')"
+								onmouseup="fetch('/move?dir=x-&state=off')">
+								Back
+						</button>
+					</div>
+					<div class="ctrl-row">
+						<button class="ctrl-btn rotate" type="button"
+								onmousedown="fetch('/move?dir=z-&state=on')"
+								onmouseup="fetch('/move?dir=z-&state=off')">
+								Rotate Left
+						</button>
+						<button class="ctrl-btn rotate" type="button"
+								onmousedown="fetch('/move?dir=z+&state=on')"
+								onmouseup="fetch('/move?dir=z+&state=off')">
+								Rotate Right
+						</button>
+					</div>
+					<div class="ctrl-row">
+						<button class="ctrl-btn" style="margin-top: 20px; width: 200px;"
+								onmousedown="fetch('/grip')">
+								Grip/ungrip
+						</button>
+					</div>
 				</div>
 			</div>
 		<script src="/Server/Webpage/script.js"></script>
