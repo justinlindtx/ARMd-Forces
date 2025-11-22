@@ -8,12 +8,13 @@ import json
 from urllib.parse import urlparse, parse_qs
 from manualControl import active_dir, current_coords
 from runRoutine import execute_routine
-from controlLogic import servo_setup, servo_cleanup
+from controlLogic import servo_setup, servo_cleanup, toggle_grip_state
 
 HOST_NAME = ''
 PORT_NUMBER = 8000
 arm_pins = [11, 13, 15] # shoulder, elbow, base (order is important)
 #servos = servo_setup(arm_pins)
+#gripper = grip_setup(17)
 
 class MyHandler(http.server.BaseHTTPRequestHandler):
 	# handler for GET requests
@@ -33,6 +34,14 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
 			self.send_header("Content-type", "text/plain")
 			self.end_headers()
 			self.wfile.write(b"OK")
+			return
+		
+		if self.path == "/grip":
+			new_state = toggle_grip_state()
+			self.send_response(200)
+			self.send_header("Content-type", "text/plain")
+			self.end_headers()
+			self.wfile.write(("close" if new_state else "open").encode())
 			return
 		
 		# Handle snapshot requests

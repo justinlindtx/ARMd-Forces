@@ -1,14 +1,15 @@
 import json
 import time
 import math
-from controlLogic import servo_setup, move_to_coords, servo_cleanup, L1, L2, MAX_BASE_ANGLE
+from controlLogic import servo_setup, set_position, move_to_coords, servo_cleanup, L1, L2, MAX_BASE_ANGLE
 
 initial_coords = [L2, L1, MAX_BASE_ANGLE / 2]
 
 def execute_routine(routine, servos):
 	print(f"Executing routine {routine["name"]}")
+	set_position(initial_coords, servos)
 	current_coords = initial_coords
-
+	
 	for step in routine["steps"]:
 		type = step["type"]
 		if type == "move":

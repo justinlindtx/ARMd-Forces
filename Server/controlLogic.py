@@ -8,14 +8,18 @@
 # import RPi.GPIO as GPIO
 import time
 import math
+import threading
 
 # Placeholders for arm segment lengths
 L1 = 6
 L2 = 5
 # Servo limits (will need to test)
 MAX_BASE_ANGLE = 270
-MIN_DUTY = 5 		# %
+# Duty cycle % parameters
+MIN_DUTY = 5
 MAX_DUTY = 10
+GRIP_CLOSED = 3
+GRIP_OPEN = 9
 
 def servo_setup(arm_pins):
 	GPIO.setmode(GPIO.BOARD)
@@ -27,10 +31,27 @@ def servo_setup(arm_pins):
 		servos.append(pwm)
 	return servos
 
+def grip_setup(pin):
+	GPIO.setmode(GPIO.BOARD)
+	GPIO.setup(pin, GPIO.OUT)
+	pwm = GPIO.PWM(pin, 50)
+	pwm.start(0)
+	return pwm
+
 def servo_cleanup(servos):
 	for s in servos:
 		s.stop()
 	GPIO.cleanup()
+
+def set_position(coords, servos):
+	if not valid_coords(coords):
+		print(f"Invalid coords: {coords}")
+		return
+	angles = find_angles(*coords)
+	for i, servo in enumerate(servos):
+		angle = angles[i]
+		duty = dutycycle(angle)
+		servo.ChangeDutyCycle(duty)
 
 def move_servos(servos, start_angles, end_angles, steps, delay=0.02):
 	for step in range(steps): # each servo reaches its end angle in the same # steps
@@ -72,7 +93,13 @@ def move_to_coords(servos, start, end, steps):
 	start_angles = find_angles(*start)
 	end_angles = find_angles(*end)
 	move_servos(servos, start_angles, end_angles, steps)
-	
+
+def open_grip(servo):
+	servo.ChangeDutyCycle(GRIP_OPEN)
+
+def close_grip(servo):
+	servo.ChangeDutyCycle(GRIP_CLOSED)
+
 
 def main():
 	arm_pins = [11, 13, 15] # shoulder, elbow, base (order is important)

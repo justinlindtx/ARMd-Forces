@@ -11,6 +11,7 @@ function main() {
 	
 	document.getElementById("control-panel-box").style.display = "none";
 
+	var gripBtn = document.getElementById("gripper");
 	var snapshotBtn = document.getElementById("snapshot-btn");
 	var pauseBtn = document.getElementById("pause-btn");
 	var pauseSubmit = document.getElementById("submit-pause");
@@ -18,6 +19,7 @@ function main() {
 	var saveBtn = document.getElementById("save-btn");
 	var sendRoutineBtn = document.getElementById("submit-routine");
 	var runRoutineBtn = document.getElementById("run");
+	gripBtn.addEventListener("click", toggleGrip);
 	snapshotBtn.addEventListener("click", takeSnapshot);
 	pauseBtn.addEventListener("click", showPauseForm);
 	pauseSubmit.addEventListener("click", addPause);
@@ -165,4 +167,8 @@ async function runRoutine() {
 		headers: {"Content-Type": "application/json"},
 		body: JSON.stringify(selectedRoutine.value)
 	});
+}
+
+function toggleGrip() {
+	fetch("/grip");
 }
