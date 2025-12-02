@@ -90,6 +90,7 @@ function addPause() {
 	var newpause = document.createElement("li");
 	newpause.textContent = "Pause: " + duration + " sec";
 	list.appendChild(newpause);
+	newpause.scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
 
 async function takeSnapshot() {
@@ -107,12 +108,14 @@ async function takeSnapshot() {
 			var gripSnapshot = document.createElement("li");
 			gripSnapshot.textContent = "Grip: " + lastGripState;
 			list.appendChild(gripSnapshot);
+			gripSnapshot.scrollIntoView({ behavior: "smooth", block: "nearest" });
 			snapshotMade = true;
 		}
 		else if(lastGripState != lastSnapshotGripState){ // if grip changed since last snapshot
 			var gripSnapshot = document.createElement("li");
 			gripSnapshot.textContent = "Grip: " + lastGripState;
 			list.appendChild(gripSnapshot);
+			gripSnapshot.scrollIntoView({ behavior: "smooth", block: "nearest" });
 		}
 
 		lastSnapshotGripState = lastGripState;
@@ -121,6 +124,7 @@ async function takeSnapshot() {
 		snapshot.dataset.rawid = snapshotID;
 		snapshot.textContent = "Move: " + formatted;
 		list.appendChild(snapshot);
+		snapshot.scrollIntoView({ behavior: "smooth", block: "nearest" });
 
 	} catch (err) {
 		console.error(err.message);
@@ -200,8 +204,4 @@ async function toggleGrip() {
 	var response = await fetch("/grip");
 	var newState = await response.text();
 	lastGripState = newState;
-	
-	// Add 
-	var selectedPage = document.getElementById("create");
-	if(selectedPage.style.display == "none") return;
 }
