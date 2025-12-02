@@ -9,7 +9,7 @@ from controlLogic import servo_setup, grip_setup, set_position, move_to_coords, 
 current_coords = [0.1, 0.22, 0.333] # initialized to default starting position
 active_dir = {"x+": False, "x-": False, "y+": False, "y-": False, "z+": False, "z-": False} # modified by webpage
 last_grip_state = None
-grip_closed = False
+grip_closed = True
 grip_lock = threading.Lock()
 speed = 0.5
 time_interval = 0.05
@@ -28,6 +28,7 @@ def toggle_grip_state():
 def arm_motion_loop(servos, gripper):
 	global current_coords
 	set_position(current_coords, servos)
+	close_grip(gripper)
 
 	while True:
 		last_coords = current_coords

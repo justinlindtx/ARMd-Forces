@@ -5,7 +5,7 @@
 # y = height
 # z = rotation about base
 
-# import RPi.GPIO as GPIO
+#import RPi.GPIO as GPIO
 import time
 import math
 import threading

@@ -6,9 +6,9 @@ import os
 import sys
 import json
 from urllib.parse import urlparse, parse_qs
-from manualControl import active_dir, current_coords
+from manualControl import active_dir, current_coords, toggle_grip_state, get_grip_state
 from runRoutine import execute_routine
-from controlLogic import servo_setup, servo_cleanup, toggle_grip_state
+from controlLogic import servo_setup, servo_cleanup, grip_setup
 
 HOST_NAME = ''
 PORT_NUMBER = 8000
@@ -36,6 +36,15 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
 			self.wfile.write(b"OK")
 			return
 		
+		# Find grip state (only called at startup)
+		if self.path == "/grip-state":
+			self.send_response(200)
+			self.send_header("Content-type", "text/plain")
+			self.end_headers()
+			self.wfile.write(("close" if get_grip_state() else "open").encode())
+			return
+		
+		# Toggle grip state
 		if self.path == "/grip":
 			new_state = toggle_grip_state()
 			self.send_response(200)
@@ -95,8 +104,6 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
 						self.wfile.write(f.read())
 					except ConnectionAbortedError:
 						pass
-					# This is where we need to create custom HTML and send it
-					# note the use of single quotes so we can transmit double quotes
 				return
 
 		except IOError:
@@ -124,7 +131,7 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
 			path = os.path.join("Server/routines", filename)
 			with open(path, "r") as file:
 				routine = json.load(file)
-			#execute_routine(routine, servos)
+			#execute_routine(routine, servos, gripper)
 			
 			self.send_response(303) # redirect
 			self.send_header("Location", "/")
