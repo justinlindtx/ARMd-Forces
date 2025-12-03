@@ -6,8 +6,7 @@ function main() {
 	var selectElement = document.getElementById("select");
 	selectElement.addEventListener("change", modeChange);
 	selectElement.value = selectedMode;
-	let selectEvent = new Event('change');
-    selectElement.dispatchEvent(selectEvent);
+    selectElement.dispatchEvent( new Event('change') );
 	
 	document.getElementById("control-panel-box").style.display = "none";
 
@@ -32,6 +31,12 @@ function main() {
 function modeChange() {
 	selectedMode = this.value;
 	localStorage.setItem("mode", selectedMode);
+	
+	fetch("/change-mode", {   // same server
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mode: selectedMode })
+    })
 	
 	var controlPanel = document.getElementById("control-panel");
 	if(selectedMode === "manual"){

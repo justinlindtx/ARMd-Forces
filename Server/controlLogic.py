@@ -5,10 +5,19 @@
 # y = height
 # z = rotation about base
 
-# import RPi.GPIO as GPIO
+# Create a mock for the RPi.GPIO module
+from unittest.mock import patch, MagicMock
+MockRPi = MagicMock()
+modules = {
+	"RPi": MockRPi,
+	"RPi.GPIO": MockRPi.GPIO,
+}
+patcher = patch.dict("sys.modules", modules)
+patcher.start()
+import RPi.GPIO as GPIO
+
 import time
 import math
-import threading
 
 # Placeholders for arm segment lengths
 L1 = 6
@@ -44,7 +53,7 @@ def servo_cleanup(servos):
 	GPIO.cleanup()
 
 def set_position(coords, servos):
-	if not valid_coords(coords):
+	if not valid_coords(*coords):
 		print(f"Invalid coords: {coords}")
 		return
 	angles = find_angles(*coords)
@@ -100,24 +109,27 @@ def open_grip(servo):
 def close_grip(servo):
 	servo.ChangeDutyCycle(GRIP_CLOSED)
 
+def toggle_grip_state():
+	pass
 
-def main():
-	arm_pins = [11, 13, 15] # shoulder, elbow, base (order is important)
-	servos = servo_setup(arm_pins)
-	
-	# Define start position
-	x_start = float(input("Input starting x: "))
-	y_start = float(input("Input starting y: "))
-	z_start = float(input("Input starting z: "))
 
-	# Define end position
-	x_end = float(input("Input target x: "))
-	y_end = float(input("Input target y: "))
-	z_end = float(input("Input target z: "))
-
-	move_to_coords(servos, (x_start, y_start, z_start), (x_end, y_end, z_end))
-
-	servo_cleanup(servos)
-
-if __name__ == "__main__":
-	main()
+#def main():
+#	arm_pins = [11, 13, 15] # shoulder, elbow, base (order is important)
+#	servos = servo_setup(arm_pins)
+#	
+#	# Define start position
+#	x_start = float(input("Input starting x: "))
+#	y_start = float(input("Input starting y: "))
+#	z_start = float(input("Input starting z: "))
+#
+#	# Define end position
+#	x_end = float(input("Input target x: "))
+#	y_end = float(input("Input target y: "))
+#	z_end = float(input("Input target z: "))
+#
+#	move_to_coords(servos, (x_start, y_start, z_start), (x_end, y_end, z_end))
+#
+#	servo_cleanup(servos)
+#
+#if __name__ == "__main__":
+#	main()

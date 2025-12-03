@@ -1,20 +1,35 @@
 import datetime
 import time
 import http.server #, cgi
-#import RPi.GPIO as GPIO
+
+from unittest.mock import patch, MagicMock
+
+
 import os
 import sys
 import json
 from urllib.parse import urlparse, parse_qs
-from manualControl import active_dir, current_coords
+from manualControl import active_dir, current_coords, arm_motion_loop
 from runRoutine import execute_routine
-from controlLogic import servo_setup, servo_cleanup, toggle_grip_state
+from controlLogic import *
+from threading import *
 
 HOST_NAME = ''
 PORT_NUMBER = 8000
-arm_pins = [11, 13, 15] # shoulder, elbow, base (order is important)
-#servos = servo_setup(arm_pins)
-#gripper = grip_setup(17)
+
+mode = ""
+mode_lock = Lock()
+
+cur_routine = None
+routine_lock = Lock()
+
+ARM_PINS = [11, 13, 15] # shoulder, elbow, base (order is important)
+GRIP_PIN = 17
+
+servos = servo_setup(ARM_PINS)
+gripper = grip_setup(GRIP_PIN)
+
+
 
 class MyHandler(http.server.BaseHTTPRequestHandler):
 	# handler for GET requests
@@ -29,7 +44,9 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
 			dir = params.get("dir", [""])[0]
 			state = params.get("state", [""])[0]
 			active_dir[dir] = (state == "on") # This will cause the servos to move
-
+			print("dir:" + dir)
+			print("state: " + state)
+			
 			self.send_response(200)
 			self.send_header("Content-type", "text/plain")
 			self.end_headers()
@@ -104,10 +121,12 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
 
 	# handler for POST requests
 	def do_POST(self):
+		global cur_routine
+		content_length = int(self.headers["Content-Length"])
+		body = self.rfile.read(content_length)
+		
 		if self.path == "/send":
-			content_length = int(self.headers.get("Content-Length", 0))
-			body = self.rfile.read(content_length).decode()
-			form = parse_qs(body)
+			form = parse_qs(body.decode())
 			sub = form.get("sub", [""])[0]
 			if (sub == "sub"):
 				if ("x" in form):
@@ -118,23 +137,30 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
 			return
 
 		if self.path == "/run-routine":
-			content_length = int(self.headers["Content-Length"])
-			body = self.rfile.read(content_length)
 			filename = json.loads(body)
 			path = os.path.join("Server/routines", filename)
 			with open(path, "r") as file:
 				routine = json.load(file)
+				with routine_lock:
+					cur_routine = routine
 			#execute_routine(routine, servos)
 			
 			self.send_response(303) # redirect
 			self.send_header("Location", "/")
 			self.end_headers()
 			return
-
+		
+		if self.path == "/change-mode":
+			data = json.loads(body)
+			m = data.get("mode")
+			change_mode(m)
+			self.send_response(200)
+			self.send_header("Content-Type", "application/json")
+			self.end_headers()
+			self.wfile.write(json.dumps({"status":"running"}).encode())
+			return
 		# Save a routine
 		if self.path == "/submit-routine":
-			content_length = int(self.headers["Content-Length"])
-			body = self.rfile.read(content_length)
 			data = json.loads(body)
 			routine = {
 				"name": data[0]["name"],
@@ -155,18 +181,78 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
 			self.end_headers()
 			return
 
+def change_mode(m):
+	global mode
+	with mode_lock:
+		mode = m
+		print(mode)
+
+def serve_manual():
+	global servos
+	set_position(current_coords, servos)
+	
+	while(1):
+		arm_motion_loop(servos, gripper)
+		with mode_lock:
+			if mode != "manual":
+				break
+	
+def serve_routine():
+	global servos, cur_routine
+	while (1):
+		with routine_lock:
+			if (cur_routine):
+				break
+		time.sleep(0.1)
+	execute_routine(cur_routine, servos)
+	with routine_lock:
+		cur_routine = None
+
+def serve_coords():
+	global servos
+	while (1):
+		move_to_coords(servos, )
+
 def main():
+	global servos
 	try:
 		server = http.server.HTTPServer((HOST_NAME, PORT_NUMBER), MyHandler)
 		print ("Started httpserver on port ", str(PORT_NUMBER))
 
-		server.serve_forever()
+		server_thread = Thread(target = server.serve_forever)
+		control_thread = None	
+		server_thread.start()
+		# servo setup
+		arm_pins = [11, 13, 15] # shoulder, elbow, base (order is important)
+		grip_pin = 17
+		while(1):
+			with mode_lock:
+				m = mode
+			print(m)
+			match m:
+				case "manual":
+					serve_manual()
+				case "create":
+					serve_manual()
+				case "run-routine":
+					serve_routine()
+				case "coords":
+					serve_coords()
+				case _:
+					pass
+			time.sleep(0.1)
 
 	except KeyboardInterrupt:
 		print("^C received, shutting down web server")
+		server.shutdown()
 	finally:
-		server.socket.close()
-		#servo_cleanup(servos)
+		if server:
+			server.server_close()
+		servo_cleanup(servos)
+	
+	
+	
+	
 
 if __name__ == "__main__":
 	main()
