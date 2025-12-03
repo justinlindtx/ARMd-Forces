@@ -1,11 +1,11 @@
 import json
 import time
 import math
-from controlLogic import servo_setup, set_position, move_to_coords, servo_cleanup, L1, L2, MAX_BASE_ANGLE
+from controlLogic import servo_setup, set_position, move_to_coords, open_grip, close_grip, servo_cleanup, L1, L2, MAX_BASE_ANGLE
 
 initial_coords = [L2, L1, MAX_BASE_ANGLE / 2]
 
-def execute_routine(routine, servos):
+def execute_routine(routine, servos, gripper):
 	print(f"Executing routine {routine["name"]}")
 	set_position(initial_coords, servos)
 	current_coords = initial_coords
@@ -22,14 +22,14 @@ def execute_routine(routine, servos):
 
 		elif type == "grip":
 			if step["state"] == "close":
-				#close_gripper() # function not written yet
-				pass
+				close_grip(gripper)
 			elif step["state"] == "open":
-				#open_gripper() # function not written yet
-				pass
+				open_grip(gripper)
 		
 		else:
 			print(f"Unknown step type {type}")
+
+
 
 def main():
 	with open("routines/routine_1.json", "r") as file:

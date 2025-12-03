@@ -53,6 +53,15 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
 			self.wfile.write(b"OK")
 			return
 		
+		# Find grip state (only called at startup)
+		if self.path == "/grip-state":
+			self.send_response(200)
+			self.send_header("Content-type", "text/plain")
+			self.end_headers()
+			self.wfile.write(("close" if get_grip_state() else "open").encode())
+			return
+		
+		# Toggle grip state
 		if self.path == "/grip":
 			new_state = toggle_grip_state()
 			self.send_response(200)
@@ -112,8 +121,6 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
 						self.wfile.write(f.read())
 					except ConnectionAbortedError:
 						pass
-					# This is where we need to create custom HTML and send it
-					# note the use of single quotes so we can transmit double quotes
 				return
 
 		except IOError:

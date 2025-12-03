@@ -1,5 +1,14 @@
 var selectedMode;
+var lastGripState = null;
+var lastSnapshotGripState = null;
+var snapshotMade = false;
 var rawCoordValues = [];
+
+// find initial grip state
+(async () => {
+	const r = await fetch("/grip-state");
+	lastGripState = await r.text();  // "open" or "close"
+})();
 
 function main() {
 	selectedMode = localStorage.getItem("mode") || "coord";
@@ -86,6 +95,7 @@ function addPause() {
 	var newpause = document.createElement("li");
 	newpause.textContent = "Pause: " + duration + " sec";
 	list.appendChild(newpause);
+	newpause.scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
 
 async function takeSnapshot() {
@@ -98,10 +108,28 @@ async function takeSnapshot() {
 		var formatted = data.map(n => Number(n).toFixed(2)).join(", "); // display rounded values
 
 		var list = document.getElementById("list");
+
+		if(!snapshotMade){ // first snapshot always includes a grip entry
+			var gripSnapshot = document.createElement("li");
+			gripSnapshot.textContent = "Grip: " + lastGripState;
+			list.appendChild(gripSnapshot);
+			gripSnapshot.scrollIntoView({ behavior: "smooth", block: "nearest" });
+			snapshotMade = true;
+		}
+		else if(lastGripState != lastSnapshotGripState){ // if grip changed since last snapshot
+			var gripSnapshot = document.createElement("li");
+			gripSnapshot.textContent = "Grip: " + lastGripState;
+			list.appendChild(gripSnapshot);
+			gripSnapshot.scrollIntoView({ behavior: "smooth", block: "nearest" });
+		}
+
+		lastSnapshotGripState = lastGripState;
+		
 		var snapshot = document.createElement("li");
 		snapshot.dataset.rawid = snapshotID;
 		snapshot.textContent = "Move: " + formatted;
 		list.appendChild(snapshot);
+		snapshot.scrollIntoView({ behavior: "smooth", block: "nearest" });
 
 	} catch (err) {
 		console.error(err.message);
@@ -128,8 +156,11 @@ async function sendRoutine() {
 			var entry = rawCoordValues.find(x => x.id == id);
 			payload.push({type: "move", coords: entry.raw}); // send unrounded values
 		}
-		else {
-			payload.push({type: "pause", duration: parseFloat(text.slice(7, -4))});
+		else if(text.startsWith("Pause: ")){
+			payload.push({type: "pause", duration: parseFloat(text.split(":")[1].replace("sec", "").trim())});
+		}
+		else if(text.startsWith("Grip: ")){
+			payload.push({type: "grip", state: text.slice(6)});
 		}
 	});
 	
@@ -174,6 +205,8 @@ async function runRoutine() {
 	});
 }
 
-function toggleGrip() {
-	fetch("/grip");
+async function toggleGrip() {
+	var response = await fetch("/grip");
+	var newState = await response.text();
+	lastGripState = newState;
 }
