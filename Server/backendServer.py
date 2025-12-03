@@ -23,13 +23,9 @@ mode_lock = Lock()
 cur_routine = None
 routine_lock = Lock()
 
-ARM_PINS = [11, 13, 15] # shoulder, elbow, base (order is important)
-GRIP_PIN = 17
-
-servos = servo_setup(ARM_PINS)
-gripper = grip_setup(GRIP_PIN)
-
-
+ARM_CHANNELS = [0, 1, 2]
+servos = servo_setup(ARM_CHANNELS) # shoulder, elbow, base (order is important)
+grip = grip_setup(3)
 
 class MyHandler(http.server.BaseHTTPRequestHandler):
 	# handler for GET requests
@@ -229,9 +225,6 @@ def main():
 		server_thread = Thread(target = server.serve_forever)
 		control_thread = None	
 		server_thread.start()
-		# servo setup
-		arm_pins = [11, 13, 15] # shoulder, elbow, base (order is important)
-		grip_pin = 17
 		while(1):
 			with mode_lock:
 				m = mode

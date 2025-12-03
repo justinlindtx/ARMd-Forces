@@ -6,51 +6,44 @@
 # z = rotation about base
 
 # Create a mock for the RPi.GPIO module
-from unittest.mock import patch, MagicMock
-MockRPi = MagicMock()
-modules = {
-	"RPi": MockRPi,
-	"RPi.GPIO": MockRPi.GPIO,
-}
-patcher = patch.dict("sys.modules", modules)
-patcher.start()
-import RPi.GPIO as GPIO
+# from unittest.mock import patch, MagicMock
+# MockRPi = MagicMock()
+# modules = {
+# 	"RPi": MockRPi,
+# 	"RPi.GPIO": MockRPi.GPIO,
+# }
+# patcher = patch.dict("sys.modules", modules)
+# patcher.start()
+# import RPi.GPIO as GPIO
 
+from adafruit_servokit import ServoKit
 import time
 import math
 
 # Placeholders for arm segment lengths
 L1 = 6
 L2 = 5
-# Servo limits (will need to test)
-MAX_BASE_ANGLE = 270
-# Duty cycle % parameters
-MIN_DUTY = 5
-MAX_DUTY = 10
-GRIP_CLOSED = 3
-GRIP_OPEN = 9
+# Base servo limit
+MAX_BASE_ANGLE = 180
+# Grip angle parameters (in degrees)
+GRIP_CLOSED = 10
+GRIP_OPEN = 150
 
-def servo_setup(arm_pins):
-	GPIO.setmode(GPIO.BOARD)
+kit = ServoKit(channels=16)
+
+def servo_setup(arm_channels):
 	servos = []
-	for pin in arm_pins:
-		GPIO.setup(pin, GPIO.OUT)
-		pwm = GPIO.PWM(pin, 50)
-		pwm.start(0)
-		servos.append(pwm)
+	for ch in arm_channels:
+		servos.append(kit.servo[ch])
 	return servos
 
-def grip_setup(pin):
-	GPIO.setmode(GPIO.BOARD)
-	GPIO.setup(pin, GPIO.OUT)
-	pwm = GPIO.PWM(pin, 50)
-	pwm.start(0)
-	return pwm
+def grip_setup(channel):
+	return kit.servo[channel]
 
 def servo_cleanup(servos):
 	for s in servos:
-		s.stop()
-	GPIO.cleanup()
+		s.angle = None
+	#kit._pca.deinit()
 
 def set_position(coords, servos):
 	if not valid_coords(*coords):
@@ -58,30 +51,27 @@ def set_position(coords, servos):
 		return
 	angles = find_angles(*coords)
 	for i, servo in enumerate(servos):
-		angle = angles[i]
-		duty = dutycycle(angle)
-		servo.ChangeDutyCycle(duty)
+		servo.angle = angles[i]
 
 def move_servos(servos, start_angles, end_angles, steps, delay=0.02):
 	for step in range(steps): # each servo reaches its end angle in the same # steps
 		ratio = (step+1) / steps
 		for i, servo in enumerate(servos): # move each servo
 			angle = start_angles[i] + (end_angles[i] - start_angles[i]) * ratio
-			print(f"Servo {i} angle: {angle}") # Debug print
-			duty = dutycycle(angle)
-			servo.ChangeDutyCycle(duty)
+			print(f"Servo {i} angle: {angle:.2f}") # Debug print
+			servo.angle = angle
 		time.sleep(delay)
 
-def dutycycle(angle):
-	return MIN_DUTY + (angle / math.pi) * (MAX_DUTY - MIN_DUTY)
+def rad_to_deg(r):
+    return r * 180.0 / math.pi
 
 # Calculates servo angles for desired x,y coordinates using the law of cosines
-# Z coordinate is just converted to radians
-# The function returns all values in radians
+# Z coordinate is already an angle, so nothing is done to it
+# The function returns all values in degrees
 def find_angles(x,y,z):
-	shoulder_angle = math.atan2(y,x) + math.acos(((x*x + y*y) + L1*L1 - L2*L2) / (2 * math.sqrt(x*x + y*y) * L1))
-	elbow_angle = math.acos((L1*L1 + L2*L2 - (x*x + y*y)) / (2 * L1 * L2))
-	base_angle = z * (math.pi/180)
+	shoulder_angle = rad_to_deg(math.atan2(y,x) + math.acos(((x*x + y*y) + L1*L1 - L2*L2) / (2 * math.sqrt(x*x + y*y) * L1)))
+	elbow_angle = rad_to_deg(math.acos((L1*L1 + L2*L2 - (x*x + y*y)) / (2 * L1 * L2)))
+	base_angle = z
 	return shoulder_angle, elbow_angle, base_angle
 
 def valid_coords(x,y,z):
@@ -104,10 +94,10 @@ def move_to_coords(servos, start, end, steps):
 	move_servos(servos, start_angles, end_angles, steps)
 
 def open_grip(servo):
-	servo.ChangeDutyCycle(GRIP_OPEN)
+	servo.angle = GRIP_OPEN
 
 def close_grip(servo):
-	servo.ChangeDutyCycle(GRIP_CLOSED)
+	servo.angle = GRIP_CLOSED
 
 def toggle_grip_state():
 	pass
