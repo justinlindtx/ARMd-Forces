@@ -2,14 +2,14 @@ import datetime
 import time
 import http.server #, cgi
 
-from unittest.mock import patch, MagicMock
+#from unittest.mock import patch, MagicMock
 
 
 import os
-import sys
+#import sys
 import json
 from urllib.parse import urlparse, parse_qs
-from manualControl import active_dir, current_coords, arm_motion_loop
+from manualControl import active_dir, current_coords, get_grip_state, toggle_grip_state, close_grip, arm_motion_loop
 from runRoutine import execute_routine
 from controlLogic import *
 from threading import *
@@ -193,9 +193,10 @@ def change_mode(m):
 def serve_manual():
 	global servos
 	set_position(current_coords, servos)
-	
+	close_grip(grip)
+
 	while(1):
-		arm_motion_loop(servos, gripper)
+		arm_motion_loop(servos, grip)
 		with mode_lock:
 			if mode != "manual":
 				break

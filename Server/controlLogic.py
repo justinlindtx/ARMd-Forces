@@ -5,17 +5,6 @@
 # y = height
 # z = rotation about base
 
-# Create a mock for the RPi.GPIO module
-# from unittest.mock import patch, MagicMock
-# MockRPi = MagicMock()
-# modules = {
-# 	"RPi": MockRPi,
-# 	"RPi.GPIO": MockRPi.GPIO,
-# }
-# patcher = patch.dict("sys.modules", modules)
-# patcher.start()
-# import RPi.GPIO as GPIO
-
 from adafruit_servokit import ServoKit
 import time
 import math
@@ -99,8 +88,8 @@ def open_grip(servo):
 def close_grip(servo):
 	servo.angle = GRIP_CLOSED
 
-def toggle_grip_state():
-	pass
+# def toggle_grip_state():
+# 	pass
 
 
 #def main():
