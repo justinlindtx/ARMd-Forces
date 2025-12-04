@@ -10,13 +10,13 @@ import time
 import math
 
 # Placeholders for arm segment lengths
-L1 = 6
+L1 = 7
 L2 = 5
 # Base servo limit
 MAX_BASE_ANGLE = 180
 # Grip angle parameters (in degrees)
-GRIP_CLOSED = 10
-GRIP_OPEN = 150
+GRIP_CLOSED = 25
+GRIP_OPEN = 80
 
 kit = ServoKit(channels=16)
 

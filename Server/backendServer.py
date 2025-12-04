@@ -191,7 +191,7 @@ def change_mode(m):
 		print(mode)
 
 def serve_manual():
-	global servos
+	global servos, grip
 	set_position(current_coords, servos)
 	close_grip(grip)
 
@@ -200,22 +200,46 @@ def serve_manual():
 		with mode_lock:
 			if mode != "manual":
 				break
+
+
+def serve_create():
+	global servos, grip
+	set_position(current_coords, servos)
+	close_grip(grip)
+
+	while(1):
+		arm_motion_loop(servos, grip)
+		with mode_lock:
+			if mode != "create":
+				break
+	
 	
 def serve_routine():
-	global servos, cur_routine
+	global servos, cur_routine, grip
 	while (1):
-		with routine_lock:
-			if (cur_routine):
-				break
+		breakOut = False
+		while (1):
+			with routine_lock:
+				if (cur_routine):
+					break
+			with mode_lock:
+				if mode != "run-routine":
+					breakOut = True
+					break
+		if breakOut:
+			break
 		time.sleep(0.1)
-	execute_routine(cur_routine, servos)
-	with routine_lock:
-		cur_routine = None
+		with routine_lock:
+			execute_routine(cur_routine, servos, grip)
+			cur_routine = None
 
 def serve_coords():
 	global servos
 	while (1):
-		move_to_coords(servos, )
+		with mode_lock:
+			if mode != "coords":
+				break
+		#move_to_coords(servos, )
 
 def main():
 	global servos
@@ -234,7 +258,7 @@ def main():
 				case "manual":
 					serve_manual()
 				case "create":
-					serve_manual()
+					serve_create()
 				case "run-routine":
 					serve_routine()
 				case "coords":
@@ -243,13 +267,14 @@ def main():
 					pass
 			time.sleep(0.1)
 
-	except KeyboardInterrupt:
+	except:
 		print("^C received, shutting down web server")
 		server.shutdown()
 	finally:
 		if server:
 			server.server_close()
 		servo_cleanup(servos)
+		servo_cleanup((grip,))
 	
 	
 	

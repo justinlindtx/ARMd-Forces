@@ -6,7 +6,7 @@ from controlLogic import servo_setup, set_position, move_to_coords, open_grip, c
 initial_coords = [L2, L1, MAX_BASE_ANGLE / 2]
 
 def execute_routine(routine, servos, gripper):
-	print(f"Executing routine {routine["name"]}")
+	print(f"Executing routine {routine['name']}")
 	set_position(initial_coords, servos)
 	current_coords = initial_coords
 	
