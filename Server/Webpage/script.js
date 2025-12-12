@@ -1,24 +1,29 @@
+// JavaScript file for handling the state of the html webpage
+
 var selectedMode;
 var lastGripState = null;
 var lastSnapshotGripState = null;
 var snapshotMade = false;
 var rawCoordValues = [];
 
-// find initial grip state
+// Find initial grip state
 (async () => {
 	const r = await fetch("/grip-state");
 	lastGripState = await r.text();  // "open" or "close"
 })();
 
 function main() {
-	selectedMode = localStorage.getItem("mode") || "coord";
+	// Set up mode selection
+	selectedMode = localStorage.getItem("mode") || "coord"; // Gets previously selected mode if exists, or "coord" by default
 	var selectElement = document.getElementById("select");
 	selectElement.addEventListener("change", modeChange);
 	selectElement.value = selectedMode;
     selectElement.dispatchEvent( new Event('change') );
 	
+	// Disable the display of control panel
 	document.getElementById("control-panel-box").style.display = "none";
-
+	
+	// Getting buttons from html
 	var gripBtn = document.getElementById("gripper");
 	var snapshotBtn = document.getElementById("snapshot-btn");
 	var pauseBtn = document.getElementById("pause-btn");
@@ -37,16 +42,20 @@ function main() {
 	runRoutineBtn.addEventListener("click", runRoutine);
 }
 
+// Called every time mode changes
 function modeChange() {
+	// Gets selected mode
 	selectedMode = this.value;
 	localStorage.setItem("mode", selectedMode);
 	
+	// Sends mode to server
 	fetch("/change-mode", {   // same server
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ mode: selectedMode })
     })
 	
+	// Makes control panel visible if mode is "manual" or "create"
 	var controlPanel = document.getElementById("control-panel");
 	if(selectedMode === "manual"){
 		var placeholder = document.getElementById("manual-control-placeholder");
@@ -57,18 +66,20 @@ function modeChange() {
 		placeholder.appendChild(controlPanel);
 	}
 	
+	// Makes coresponding elements for the mode visible/invisible
 	var modes = document.getElementsByClassName("mode");
 	var selMode = document.getElementById(this.value);
-	for (let i = 0; i < modes.length; i++) { // hide all modes
+	for (let i = 0; i < modes.length; i++) { // Hides all mode elements
 		modes[i].style.display = "none";
 	}
-	selMode.style.display = "block"; // show selected mode
+	selMode.style.display = "block"; // Shows selected mode elements
 
 	if(selectedMode == "run-routine"){
 		loadRoutines();
 	}
 }
 
+// Removes the most recently added action element
 function undoAction() {
 	document.getElementById("pause-submission-form").style.display = "none";
 	var list = document.getElementById("list");
@@ -77,11 +88,13 @@ function undoAction() {
 	}
 }
 
+// Shows the pause form
 function showPauseForm() {
 	document.getElementById("pause-submission-form").style.display = "block";
 	document.getElementById("routine-submission-form").style.display = "none";
 }
 
+// Adds a pause as an element and displays it.
 function addPause() {
 	document.getElementById("pause-submission-form").style.display = "none";
 	var entry = document.getElementById("pause-duration");
@@ -98,6 +111,7 @@ function addPause() {
 	newpause.scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
 
+// Gets the current servo positions from the servo, creates an element and displays it.
 async function takeSnapshot() {
 	document.getElementById("pause-submission-form").style.display = "none";
 	try {
@@ -136,11 +150,13 @@ async function takeSnapshot() {
 	}
 }
 
+// Shows the save submission form for routine creation
 function showSaveForm() {
 	document.getElementById("routine-submission-form").style.display = "block";
 	document.getElementById("pause-submission-form").style.display = "none";
 }
 
+// Sends the current routine as a JSON file to be saved by the server
 async function sendRoutine() {
 	document.getElementById("routine-submission-form").style.display = "none";
 	var name = document.getElementById("routine-name");
@@ -170,16 +186,17 @@ async function sendRoutine() {
 		body: JSON.stringify(payload)
 	});
 
-	// Clear the list
+	// Clears the list
 	var list = document.getElementById("list");
 	list.replaceChildren();
 }
 
+// Loads and displays locally stored JSON routines by requesting them from the server
 async function loadRoutines() {
 	var response = await fetch("/list-files");
 	var files = await response.json();
 	var select = document.getElementById("routineSelect");
-	select.innerHTML = ""; // clear old options
+	select.innerHTML = ""; // Clears old options
 
 	var blank = document.createElement("option");
 	blank.value = "";
@@ -194,6 +211,7 @@ async function loadRoutines() {
 	}
 }
 
+// Sends the server the selected routine's JSON file
 async function runRoutine() {
 	var selectedRoutine = document.getElementById("routineSelect");
 	if(selectedRoutine.value == "") return;
@@ -205,6 +223,7 @@ async function runRoutine() {
 	});
 }
 
+// Sends the server a request to toggle grip
 async function toggleGrip() {
 	var response = await fetch("/grip");
 	var newState = await response.text();

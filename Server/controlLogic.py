@@ -5,35 +5,41 @@
 # y = height
 # z = rotation about base
 
+# Imports
 from adafruit_servokit import ServoKit
 import time
 import math
 
-# Placeholders for arm segment lengths
+# Arm segment lengths in 'units'
 L1 = 7
 L2 = 5
+
 # Base servo limit
-MAX_BASE_ANGLE = 180
+MAX_BASE_ANGLE = 170
+
 # Grip angle parameters (in degrees)
 GRIP_CLOSED = 25
 GRIP_OPEN = 80
 
 kit = ServoKit(channels=16)
 
+# Call once to set up and return servos
 def servo_setup(arm_channels):
 	servos = []
 	for ch in arm_channels:
 		servos.append(kit.servo[ch])
 	return servos
 
+# Call once to set up and return grip servo
 def grip_setup(channel):
 	return kit.servo[channel]
 
+# Call to clean up servos
 def servo_cleanup(servos):
 	for s in servos:
 		s.angle = None
-	#kit._pca.deinit()
 
+# Sets servo angles to coords [x, y, z]
 def set_position(coords, servos):
 	if not valid_coords(*coords):
 		print(f"Invalid coords: {coords}")
@@ -42,6 +48,7 @@ def set_position(coords, servos):
 	for i, servo in enumerate(servos):
 		servo.angle = angles[i]
 
+# Interpolates servo angles from 'start_angles' to 'end_angles' over 'steps' steps
 def move_servos(servos, start_angles, end_angles, steps, delay=0.02):
 	for step in range(steps): # each servo reaches its end angle in the same # steps
 		ratio = (step+1) / steps
@@ -51,6 +58,7 @@ def move_servos(servos, start_angles, end_angles, steps, delay=0.02):
 			servo.angle = angle
 		time.sleep(delay)
 
+# Converts radians r to degrees
 def rad_to_deg(r):
     return r * 180.0 / math.pi
 
@@ -63,6 +71,7 @@ def find_angles(x,y,z):
 	base_angle = z
 	return shoulder_angle, elbow_angle, base_angle
 
+# Returns True if given coords are valis, False otherwise
 def valid_coords(x,y,z):
 	if x < 0 or y < 0 or z < 0: # out of range
 		return False
@@ -74,6 +83,7 @@ def valid_coords(x,y,z):
 		return False
 	return True
 
+# Interpolates position from coords 'start' to 'end' over 'steps' steps 
 def move_to_coords(servos, start, end, steps):
 	if not valid_coords(*start) or not valid_coords(*end):
 		print("Invalid move")
@@ -82,33 +92,10 @@ def move_to_coords(servos, start, end, steps):
 	end_angles = find_angles(*end)
 	move_servos(servos, start_angles, end_angles, steps)
 
+# Opens the grip
 def open_grip(servo):
 	servo.angle = GRIP_OPEN
 
+# Closes the grip
 def close_grip(servo):
 	servo.angle = GRIP_CLOSED
-
-# def toggle_grip_state():
-# 	pass
-
-
-#def main():
-#	arm_pins = [11, 13, 15] # shoulder, elbow, base (order is important)
-#	servos = servo_setup(arm_pins)
-#	
-#	# Define start position
-#	x_start = float(input("Input starting x: "))
-#	y_start = float(input("Input starting y: "))
-#	z_start = float(input("Input starting z: "))
-#
-#	# Define end position
-#	x_end = float(input("Input target x: "))
-#	y_end = float(input("Input target y: "))
-#	z_end = float(input("Input target z: "))
-#
-#	move_to_coords(servos, (x_start, y_start, z_start), (x_end, y_end, z_end))
-#
-#	servo_cleanup(servos)
-#
-#if __name__ == "__main__":
-#	main()

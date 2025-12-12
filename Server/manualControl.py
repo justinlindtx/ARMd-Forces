@@ -1,7 +1,9 @@
 # This file is a basic framework for how manual control mode can interface with direct control logic
 # IMPORTANT: Web form buttons for manual control should be configured to send HTTP requests that toggle active_dir[] elements to True or False
 # Movement is handled by the thread
+# This file has funtions for maunually controlling the arm
 
+# Imports
 import threading
 import time
 from controlLogic import servo_setup, grip_setup, set_position, move_to_coords, close_grip, open_grip, servo_cleanup
@@ -15,17 +17,19 @@ grip_lock = threading.Lock()
 SPEED = 0.75
 TIME_INTERVAL = 0.05
 
-
+# Gets the current grip state
 def get_grip_state():
 	with grip_lock:
 		return grip_closed
 
+# Toggles grip state
 def toggle_grip_state():
 	global grip_closed
 	with grip_lock:
 		grip_closed = not grip_closed
 		return grip_closed
 
+# Adjusts arm position according to 'active_dir' inputs
 def arm_motion_loop(servos, gripper):
 	global current_coords, last_grip_state
 	
@@ -60,19 +64,3 @@ def arm_motion_loop(servos, gripper):
 
 	time.sleep(TIME_INTERVAL)
 
-
-# def main():
-# 	print("Starting manual control mode")
-# 	arm_pins = [11, 13, 15] # shoulder, elbow, base (order is important)
-# 	grip_pin = 17
-# 	servos = servo_setup(arm_pins)
-# 	gripper = grip_setup(grip_pin)
-
-# 	t = threading.Thread(target=arm_motion_loop, daemon=True, args=(servos, gripper))
-# 	t.start()
-
-# 	t.join()
-# 	servo_cleanup(servos)
-
-# if __name__ == "__main__":
-# 	main()
