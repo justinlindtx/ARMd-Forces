@@ -1,5 +1,5 @@
 # This file is a basic framework for how manual control mode can interface with direct control logic
-# IMPORTANT: Web form buttons for manual control should be configured to send HTTP requests that toggle active_dir[] elements to True or False
+# IMPORTANT: All web-based forms of manual control must be configured to send HTTP requests that toggle active_dir[] elements to True or False
 # Movement is handled by the thread
 # This file has funtions for maunually controlling the arm
 
@@ -8,6 +8,7 @@ import threading
 import time
 from controlLogic import servo_setup, grip_setup, set_position, move_to_coords, close_grip, open_grip, servo_cleanup
 
+# Control parameters
 current_coords = [3, 3, 45] # initialized to default starting position
 active_dir = {"x": False, "x-": False, "y": False, "y-": False, "z": False, "z-": False} # modified by webpage
 last_grip_state = None
@@ -35,7 +36,7 @@ def arm_motion_loop(servos, gripper):
 
 	last_coords = current_coords
 	dx = dy = dz = 0
-	# The thread waits for these to be set to true (whenever buttons are being pressed on the webpage)
+	# The thread waits for these to be set to true (i.e. whenever buttons are being pressed on the webpage)
 	if active_dir["x"]: dx += SPEED * TIME_INTERVAL
 	if active_dir["x-"]: dx -= SPEED * TIME_INTERVAL
 	if active_dir["y"]: dy += SPEED * TIME_INTERVAL

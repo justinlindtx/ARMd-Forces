@@ -71,7 +71,7 @@ def find_angles(x,y,z):
 	base_angle = z
 	return shoulder_angle, elbow_angle, base_angle
 
-# Returns True if given coords are valis, False otherwise
+# Returns True if given coords are valid, False otherwise
 def valid_coords(x,y,z):
 	if x < 0 or y < 0 or z < 0: # out of range
 		return False

@@ -1,12 +1,12 @@
 # This is the backend server for our project. It should be run from the /Server directory to
 # work correctly. It spins off a thread that hosts a http server, displaying the contents of webpage.html 
-# as well as interact with the software that controls the arm, ensuring that only one mode is controlling
+# and interacting with the software that controls the arm, ensuring that only one mode is controlling
 # the arm at a time.
 
 # Imports
 import datetime
 import time
-import http.server #, cgi
+import http.server
 import os
 import json
 from urllib.parse import urlparse, parse_qs
@@ -25,13 +25,13 @@ cur_routine = None # Currently selected routine
 routine_lock = Lock()
 
 # Arm variables
-ARM_CHANNELS = [0, 1, 2]
-servos = servo_setup(ARM_CHANNELS) # shoulder, elbow, base (order is important)
+ARM_CHANNELS = [0, 1, 2] # shoulder, elbow, base (order is important)
+servos = servo_setup(ARM_CHANNELS)
 grip = grip_setup(3)
 
 # Defining our http server handler
 class MyHandler(http.server.BaseHTTPRequestHandler):
-	# Dandler for GET requests
+	# Handler for GET requests
 	def do_GET(self):
 		if self.path in ("/", "/send?", "/send"):
 			self.path = "Server/Webpage/webpage.html"
@@ -69,7 +69,7 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
 			self.wfile.write(("close" if new_state else "open").encode())
 			return
 		
-		# Handle snapshot requests
+		# Handle coordinate requests for snapshots
 		if self.path == "/get-coords":
 			response = json.dumps(current_coords).encode()
 
@@ -131,7 +131,7 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
 		content_length = int(self.headers["Content-Length"])
 		body = self.rfile.read(content_length)
 		
-		# Send coords (Incomplete)
+		# Send coords (INCOMPLETE)
 		if self.path == "/send":
 			form = parse_qs(body.decode())
 			sub = form.get("sub", [""])[0]
@@ -142,6 +142,7 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
 			self.send_header("Location", "/")
 			self.end_headers()
 			return
+		
 		# Run a routine
 		if self.path == "/run-routine":
 			filename = json.loads(body)
@@ -154,6 +155,7 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
 			self.send_header("Location", "/")
 			self.end_headers()
 			return
+		
 		# Change operation mode
 		if self.path == "/change-mode":
 			data = json.loads(body)
@@ -164,7 +166,8 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
 			self.end_headers()
 			self.wfile.write(json.dumps({"status":"running"}).encode())
 			return
-		# Save a routine
+		
+		# Save a routine as a JSON file
 		if self.path == "/submit-routine":
 			data = json.loads(body)
 			routine = {
@@ -237,7 +240,7 @@ def serve_routine():
 			execute_routine(cur_routine, servos, grip)
 			cur_routine = None
 
-# Enters coord mode, which will be served until 'mode' is not "coords" (Incomplete)
+# Enters coord mode, which will be served until 'mode' is not "coords" (INCOMPLETE)
 def serve_coords():
 	global servos
 	while (1):

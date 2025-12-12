@@ -1,9 +1,7 @@
 # This file contains code for running routines
 
 # Imports
-import json
 import time
-import math
 from controlLogic import servo_setup, set_position, move_to_coords, open_grip, close_grip, servo_cleanup, L1, L2, MAX_BASE_ANGLE
 
 initial_coords = [L2, L1, MAX_BASE_ANGLE / 2]

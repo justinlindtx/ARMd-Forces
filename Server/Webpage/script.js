@@ -111,7 +111,7 @@ function addPause() {
 	newpause.scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
 
-// Gets the current servo positions from the servo, creates an element and displays it.
+// Gets the current servo positions from the server, creates an element and displays it.
 async function takeSnapshot() {
 	document.getElementById("pause-submission-form").style.display = "none";
 	try {
