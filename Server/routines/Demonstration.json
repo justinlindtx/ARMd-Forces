@@ -1,0 +1,34 @@
+{
+  "name": "Demonstration",
+  "date": "2025-12-04",
+  "steps": [
+    {
+      "type": "grip",
+      "state": "close"
+    },
+    {
+      "type": "move",
+      "coords": [
+        3,
+        1.6499999999999968,
+        45
+      ]
+    },
+    {
+      "type": "grip",
+      "state": "open"
+    },
+    {
+      "type": "move",
+      "coords": [
+        3,
+        1.6499999999999968,
+        45
+      ]
+    },
+    {
+      "type": "pause",
+      "duration": 1.2
+    }
+  ]
+}

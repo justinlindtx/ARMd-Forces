@@ -1,12 +1,13 @@
+# This is the backend server for our project. It should be run from the /Server directory to
+# work correctly. It spins off a thread that hosts a http server, displaying the contents of webpage.html 
+# as well as interact with the software that controls the arm, ensuring that only one mode is controlling
+# the arm at a time.
+
+# Imports
 import datetime
 import time
 import http.server #, cgi
-
-#from unittest.mock import patch, MagicMock
-
-
 import os
-#import sys
 import json
 from urllib.parse import urlparse, parse_qs
 from manualControl import active_dir, current_coords, get_grip_state, toggle_grip_state, close_grip, arm_motion_loop
@@ -17,18 +18,20 @@ from threading import *
 HOST_NAME = ''
 PORT_NUMBER = 8000
 
-mode = ""
+mode = "" # Current mode of operation
 mode_lock = Lock()
 
-cur_routine = None
+cur_routine = None # Currently selected routine
 routine_lock = Lock()
 
+# Arm variables
 ARM_CHANNELS = [0, 1, 2]
 servos = servo_setup(ARM_CHANNELS) # shoulder, elbow, base (order is important)
 grip = grip_setup(3)
 
+# Defining our http server handler
 class MyHandler(http.server.BaseHTTPRequestHandler):
-	# handler for GET requests
+	# Dandler for GET requests
 	def do_GET(self):
 		if self.path in ("/", "/send?", "/send"):
 			self.path = "Server/Webpage/webpage.html"
@@ -74,7 +77,7 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
 			self.send_header("Content-type", "application/json")
 			self.send_header("Content-Length", len(response))
 			self.end_headers()
-			self.wfile.write(response) # send json to client
+			self.wfile.write(response) # Send json to client
 			return
 		
 		# List previously saved routines
@@ -122,12 +125,13 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
 		except IOError:
 			self.send_error(404, "File not found: %s" % self.path)
 
-	# handler for POST requests
+	# Handler for POST requests
 	def do_POST(self):
 		global cur_routine
 		content_length = int(self.headers["Content-Length"])
 		body = self.rfile.read(content_length)
 		
+		# Send coords (Incomplete)
 		if self.path == "/send":
 			form = parse_qs(body.decode())
 			sub = form.get("sub", [""])[0]
@@ -138,21 +142,19 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
 			self.send_header("Location", "/")
 			self.end_headers()
 			return
-
+		# Run a routine
 		if self.path == "/run-routine":
 			filename = json.loads(body)
 			path = os.path.join("Server/routines", filename)
 			with open(path, "r") as file:
 				routine = json.load(file)
 				with routine_lock:
-					cur_routine = routine
-			#execute_routine(routine, servos)
-			
+					cur_routine = routine			
 			self.send_response(303) # redirect
 			self.send_header("Location", "/")
 			self.end_headers()
 			return
-		
+		# Change operation mode
 		if self.path == "/change-mode":
 			data = json.loads(body)
 			m = data.get("mode")
@@ -184,14 +186,16 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
 			self.end_headers()
 			return
 
+# Called to safely change modes across threads
 def change_mode(m):
 	global mode
 	with mode_lock:
 		mode = m
 		print(mode)
 
+# Enters manual mode, which will be served until 'mode' is not "manual"
 def serve_manual():
-	global servos
+	global servos, grip
 	set_position(current_coords, servos)
 	close_grip(grip)
 
@@ -200,32 +204,59 @@ def serve_manual():
 		with mode_lock:
 			if mode != "manual":
 				break
-	
-def serve_routine():
-	global servos, cur_routine
-	while (1):
-		with routine_lock:
-			if (cur_routine):
-				break
-		time.sleep(0.1)
-	execute_routine(cur_routine, servos)
-	with routine_lock:
-		cur_routine = None
 
+# Enters create mode, which will be served until 'mode' is not "create"
+def serve_create():
+	global servos, grip
+	set_position(current_coords, servos)
+	close_grip(grip)
+
+	while(1):
+		arm_motion_loop(servos, grip)
+		with mode_lock:
+			if mode != "create":
+				break
+	
+# Enters routine mode, which will be served until 'mode' is not "run-routine"
+def serve_routine():
+	global servos, cur_routine, grip
+	while (1):
+		breakOut = False
+		while (1):
+			with routine_lock:
+				if (cur_routine):
+					break
+			with mode_lock:
+				if mode != "run-routine":
+					breakOut = True
+					break
+		if breakOut:
+			break
+		time.sleep(0.1)
+		with routine_lock:
+			execute_routine(cur_routine, servos, grip)
+			cur_routine = None
+
+# Enters coord mode, which will be served until 'mode' is not "coords" (Incomplete)
 def serve_coords():
 	global servos
 	while (1):
-		move_to_coords(servos, )
+		with mode_lock:
+			if mode != "coords":
+				break
 
+# Main
 def main():
 	global servos
 	try:
+		# Sets everything up
 		server = http.server.HTTPServer((HOST_NAME, PORT_NUMBER), MyHandler)
 		print ("Started httpserver on port ", str(PORT_NUMBER))
-
 		server_thread = Thread(target = server.serve_forever)
 		control_thread = None	
 		server_thread.start()
+		
+		# Handles serving and changing modes
 		while(1):
 			with mode_lock:
 				m = mode
@@ -234,7 +265,7 @@ def main():
 				case "manual":
 					serve_manual()
 				case "create":
-					serve_manual()
+					serve_create()
 				case "run-routine":
 					serve_routine()
 				case "coords":
@@ -243,17 +274,17 @@ def main():
 					pass
 			time.sleep(0.1)
 
-	except KeyboardInterrupt:
+	except:
+		# Emergency exit
 		print("^C received, shutting down web server")
 		server.shutdown()
 	finally:
+		# Cleans everything up
 		if server:
 			server.server_close()
 		servo_cleanup(servos)
+		servo_cleanup((grip,))
 	
 	
-	
-	
-
 if __name__ == "__main__":
 	main()

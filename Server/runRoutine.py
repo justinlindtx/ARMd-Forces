@@ -1,3 +1,6 @@
+# This file contains code for running routines
+
+# Imports
 import json
 import time
 import math
@@ -5,8 +8,9 @@ from controlLogic import servo_setup, set_position, move_to_coords, open_grip, c
 
 initial_coords = [L2, L1, MAX_BASE_ANGLE / 2]
 
+# Executes the given routine
 def execute_routine(routine, servos, gripper):
-	print(f"Executing routine {routine["name"]}")
+	print(f"Executing routine {routine['name']}")
 	set_position(initial_coords, servos)
 	current_coords = initial_coords
 	
@@ -28,18 +32,3 @@ def execute_routine(routine, servos, gripper):
 		
 		else:
 			print(f"Unknown step type {type}")
-
-
-
-def main():
-	with open("routines/routine_1.json", "r") as file:
-		routine = json.load(file)
-	
-	arm_pins = [11, 13, 15] # shoulder, elbow, base (order is important)
-	servos = servo_setup(arm_pins)
-
-	execute_routine(routine, servos)
-	servo_cleanup(servos)
-
-if __name__ == "__main__":
-	main()
