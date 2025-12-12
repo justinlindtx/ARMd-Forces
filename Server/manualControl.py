@@ -28,9 +28,7 @@ def toggle_grip_state():
 
 def arm_motion_loop(servos, gripper):
 	global current_coords, last_grip_state
-	
 
-	# while True:
 	last_coords = current_coords
 	dx = dy = dz = 0
 	# The thread waits for these to be set to true (whenever buttons are being pressed on the webpage)
